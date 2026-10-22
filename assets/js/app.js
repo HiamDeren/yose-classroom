@@ -17,7 +17,6 @@
   };
   const POS_ORDER = Object.keys(POS);
   const FORM_KEYS = [["adj", "Adj", "Tính từ"], ["n", "N", "Danh từ"], ["v", "V", "Động từ"], ["adv", "Adv", "Trạng từ"]];
-  const SORTS = { az: "A → Z", za: "Z → A", lesson: "Theo buổi học" };
 
   /* ---------- Tiện ích ---------- */
   const $ = (s, r = document) => r.querySelector(s);
@@ -102,7 +101,6 @@
     });
   });
 
-  const topics = [...new Set(live.map((l) => l.topic).filter(Boolean))];
   const lessonById = (id) => lessons.find((l) => String(l.id) === String(id));
   const countBy = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
 
@@ -189,7 +187,11 @@
     search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
     x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7"/></svg>',
-    clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+    clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    filter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+    grid: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+    rows: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
   };
 
   const posBadge = (pos) => {
@@ -199,16 +201,22 @@
   const speakBtn = (text, label = "Nghe phát âm") =>
     `<button class="speak" type="button" data-speak="${esc(text)}" aria-label="${esc(label)}" title="${esc(label)}">${ICON.speak}</button>`;
 
+  // chỉ hiện các dạng từ có thật, mỗi dạng một chip màu
+  function formChips(w, q) {
+    const items = w.forms ? FORM_KEYS.filter(([k]) => w.forms[k]) : [];
+    if (!items.length) return "";
+    return `<div class="fchips">${items.map(([k, s, l]) =>
+      `<span class="fchip fchip-${k}" title="${l}"><b>${s}</b>${hl(w.forms[k], q)}</span>`).join("")}</div>`;
+  }
+  const exampleHTML = (w, q) => w.ex
+    ? `<div class="ex"><p class="ex-en">${hl(w.ex, q)} ${speakBtn(w.ex, "Nghe câu ví dụ")}</p>${w.exVi ? `<p class="ex-vi">${hl(w.exVi, q)}</p>` : ""}</div>`
+    : "";
+  const lessonLink = (w) =>
+    `<a href="#/buoi/${w.lesson.id}?w=${esc(w.id)}" class="tag tag-lesson">Buổi ${w.lesson.id}</a>${w.groupName ? `<span class="muted small">${esc(w.groupName)}</span>` : ""}`;
+
   function wordCard(w, opts = {}) {
     const q = opts.q || "";
-    const forms = w.forms
-      ? `<div class="forms">
-          <div class="forms-label">Dạng từ${w.formsOf ? ` <span>· ${hl(w.formsOf, q)}</span>` : ""}</div>
-          <dl class="forms-grid">${FORM_KEYS.map(([k, s, l]) => `
-            <div class="form form-${k}${w.forms[k] ? "" : " is-empty"}"><dt title="${l}">${s}</dt><dd>${w.forms[k] ? hl(w.forms[k], q) : "—"}</dd></div>`).join("")}
-          </dl>
-        </div>`
-      : "";
+    const chips = formChips(w, q);
     return `<article class="word" id="w-${esc(w.id)}">
       <header class="word-head">
         <div class="word-title"><h3>${hl(w.w, q)}</h3>${speakBtn(w.w)}</div>
@@ -216,36 +224,69 @@
       </header>
       ${w.ipa ? `<div class="ipa">${esc(w.ipa)}</div>` : ""}
       <p class="word-vi">${hl(w.vi, q)}</p>
-      ${forms}
+      ${chips ? `<div class="forms"><span class="forms-label">Dạng từ${w.formsOf ? ` · <i>${hl(w.formsOf, q)}</i>` : ""}</span>${chips}</div>` : ""}
       ${w.note ? `<p class="word-note">${hl(w.note, q)}</p>` : ""}
-      ${w.ex ? `<div class="ex"><p class="ex-en">${hl(w.ex, q)} ${speakBtn(w.ex, "Nghe câu ví dụ")}</p>${w.exVi ? `<p class="ex-vi">${hl(w.exVi, q)}</p>` : ""}</div>` : ""}
-      ${opts.showLesson ? `<footer class="word-meta"><a href="#/buoi/${w.lesson.id}?w=${esc(w.id)}" class="tag tag-lesson">Buổi ${w.lesson.id}</a><span class="tag">${esc(w.lesson.topic)}</span>${w.groupName ? `<span class="tag tag-ghost">${esc(w.groupName)}</span>` : ""}</footer>` : ""}
+      ${exampleHTML(w, q)}
+      ${opts.showLesson ? `<footer class="word-meta">${lessonLink(w)}</footer>` : ""}
     </article>`;
   }
 
-  function wordSections(list, mode, opts) {
-    if (!list.length) return "";
+  // dạng bảng: mỗi từ một dòng, bấm để mở ví dụ
+  function wordRow(w, opts = {}) {
+    const q = opts.q || "";
+    return `<details class="wrow" id="w-${esc(w.id)}">
+      <summary>
+        <span class="wr-word"><b>${hl(w.w, q)}</b>${w.ipa ? `<small class="ipa">${esc(w.ipa)}</small>` : ""}</span>
+        <span class="wr-pos">${posBadge(w.pos)}</span>
+        <span class="wr-vi">${hl(w.vi, q)}</span>
+        <span class="wr-forms">${formChips(w, q) || '<span class="muted">—</span>'}</span>
+        <span class="wr-end">${speakBtn(w.w)}<span class="chev">${ICON.chevron}</span></span>
+      </summary>
+      <div class="wr-detail">
+        ${w.formsOf ? `<p class="muted small">Dạng từ của <b>${hl(w.formsOf, q)}</b></p>` : ""}
+        ${w.note ? `<p class="word-note">${hl(w.note, q)}</p>` : ""}
+        ${exampleHTML(w, q) || '<p class="muted small">Chưa có ví dụ.</p>'}
+        ${opts.showLesson ? `<div class="word-meta">${lessonLink(w)}</div>` : ""}
+      </div>
+    </details>`;
+  }
+
+  function groupWords(list, mode, opts) {
+    const pick = (fn) => list.filter(fn);
     if (mode === "pos") {
-      return POS_ORDER.filter((p) => list.some((w) => w.pos === p)).map((p) => {
-        const items = list.filter((w) => w.pos === p);
-        return `<section class="wgroup">
-          <h3 class="wgroup-title">${posBadge(p)} ${esc(POS[p].label)} <span class="muted">· ${esc(POS[p].en)}</span><span class="count">${items.length}</span></h3>
-          <div class="word-grid">${items.map((w) => wordCard(w, opts)).join("")}</div>
-        </section>`;
-      }).join("");
+      return POS_ORDER.filter((p) => list.some((w) => w.pos === p)).map((p) => ({
+        head: `${posBadge(p)} ${esc(POS[p].label)} <span class="muted">· ${esc(POS[p].en)}</span>`,
+        items: pick((w) => w.pos === p)
+      }));
     }
     if (mode === "group") {
-      const groups = opts.groups || [];
-      return groups.filter((g) => list.some((w) => w.group === g.id)).map((g) => {
-        const items = list.filter((w) => w.group === g.id);
-        return `<section class="wgroup">
-          <h3 class="wgroup-title">${esc(g.name)}<span class="count">${items.length}</span></h3>
-          <div class="word-grid">${items.map((w) => wordCard(w, opts)).join("")}</div>
-        </section>`;
-      }).join("");
+      return (opts.groups || []).filter((g) => list.some((w) => w.group === g.id)).map((g) => ({
+        head: esc(g.name), items: pick((w) => w.group === g.id)
+      }));
     }
-    return `<div class="word-grid">${list.map((w) => wordCard(w, opts)).join("")}</div>`;
+    if (mode === "lesson") {
+      return live.filter((l) => list.some((w) => w.lesson === l)).map((l) => ({
+        head: `<span class="lc-num">Buổi ${l.id}</span> ${esc(l.title)}`, items: pick((w) => w.lesson === l)
+      }));
+    }
+    return [{ head: "", items: list }];
   }
+
+  function wordSections(list, mode, opts = {}) {
+    const body = (items) => opts.layout === "table"
+      ? `<div class="wtable"><div class="wtable-head"><span>Từ</span><span>Loại</span><span>Nghĩa</span><span>Dạng từ</span><span></span></div>${items.map((w) => wordRow(w, opts)).join("")}</div>`
+      : `<div class="word-grid">${items.map((w) => wordCard(w, opts)).join("")}</div>`;
+    return groupWords(list, mode, opts).map((g) => `<section class="wgroup">
+        ${g.head ? `<h3 class="wgroup-title">${g.head}<span class="count">${g.items.length}</span></h3>` : ""}
+        ${body(g.items)}
+      </section>`).join("");
+  }
+
+  // nút chuyển dạng Thẻ / Bảng (dùng chung cho Từ điển và trang buổi học)
+  const layoutSeg = (cur) => `<div class="seg" role="group" aria-label="Kiểu hiển thị">
+      <button type="button" data-layout="card" class="${cur === "card" ? "on" : ""}" title="Dạng thẻ">${ICON.grid}<span>Thẻ</span></button>
+      <button type="button" data-layout="table" class="${cur === "table" ? "on" : ""}" title="Dạng bảng">${ICON.rows}<span>Bảng</span></button>
+    </div>`;
 
   /* ---------- Tìm nhanh (dùng chung cho hộp tìm kiếm & trang chủ) ---------- */
   function quickResultsHTML(q) {
@@ -355,6 +396,7 @@
     if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); palette.hidden ? openPalette() : closePalette(); }
     else if (e.key === "/" && !typing && palette.hidden) { e.preventDefault(); openPalette(); }
     else if (e.key === "Escape" && !palette.hidden) closePalette();
+    else if (e.key === "Escape") document.body.classList.remove("sheet-open");
   });
 
   /* ---------- Giao diện sáng / tối ---------- */
@@ -400,6 +442,7 @@
   function route() {
     const { path, params } = parseHash();
     closePalette();
+    document.body.classList.remove("sheet-open");
     let m;
     if (path === "/") { setNav("home"); renderHome(); window.scrollTo(0, 0); }
     else if (path === "/tu-dien") { setNav("dict"); renderDict(params); window.scrollTo(0, 0); }
@@ -439,20 +482,6 @@
       </section>
 
       <section class="block">
-        <div class="block-head"><h2>Tra theo chủ đề</h2><p class="muted">Bấm vào chủ đề hoặc nhóm từ để lọc</p></div>
-        <div class="topic-grid">${topics.map((t) => {
-          const ls = live.filter((l) => l.topic === t);
-          const n = words.filter((w) => w.lesson.topic === t).length;
-          return `<div class="topic-card">
-            <a class="topic-name" href="#/tu-dien?t=${encodeURIComponent(t)}">${esc(t)} <span class="count">${n}</span></a>
-            <div class="topic-groups">${ls.flatMap((l) => (l.groups || []).map((g) =>
-              `<a class="tag" href="#/tu-dien?t=${encodeURIComponent(t)}&g=${l.id}:${g.id}">${esc(g.name)}</a>`)).join("")}</div>
-            <div class="muted small">${ls.map((l) => `Buổi ${l.id}`).join(" · ")}</div>
-          </div>`;
-        }).join("")}</div>
-      </section>
-
-      <section class="block">
         <div class="block-head"><h2>Tra theo loại từ</h2><p class="muted">Danh từ, động từ, tính từ, trạng từ, cụm từ…</p></div>
         <div class="pos-grid">${POS_ORDER.filter((p) => posCounts[p]).map((p) => `
           <a class="pos-card" href="#/tu-dien?p=${p}">${posBadge(p)}<span><b>${esc(POS[p].label)}</b><small>${esc(POS[p].en)}</small></span><span class="count">${posCounts[p]}</span></a>`).join("")}
@@ -489,140 +518,193 @@
         ${n("grammar") ? `<span><b>${n("grammar")}</b> ngữ pháp</span>` : ""}
         ${l.sample ? `<span>Bài nói mẫu</span>` : ""}
       </div>
+      ${(l.groups || []).length ? `<div class="lc-groups">${l.groups.map((g) => `<span>${esc(g.name)}</span>`).join("")}</div>` : ""}
       <span class="lc-go">Vào học ${ICON.arrow}</span>
     </a>`;
   }
 
   /* ---------- Trang từ điển ---------- */
+  const GROUPINGS = { pos: "Loại từ", lesson: "Buổi học", none: "Không nhóm" };
+
   function renderDict(params) {
     document.title = "Từ điển · Yose Home";
     const st = {
       q: params.get("q") || "",
       b: params.get("b") || "",
-      t: params.get("t") || "",
       g: params.get("g") || "",
-      p: params.get("p") || "",
-      s: SORTS[params.get("s")] ? params.get("s") : "az",
-      v: params.get("v") === "flat" ? "flat" : "pos"
+      p: (params.get("p") || "").split(",").filter((x) => POS[x])
+    };
+    const pref = {
+      group: GROUPINGS[store.get("yose-dict-group")] ? store.get("yose-dict-group") : "pos",
+      layout: store.get("yose-layout", "card") === "table" ? "table" : "card"
     };
 
-    app.innerHTML = `
+    app.innerHTML = `<div class="dict-page">
       <section class="page-head">
-        <h1>Từ điển khóa học</h1>
-        <p class="muted">Tra tất cả từ vựng theo từ khóa, buổi học, chủ đề và loại từ.</p>
+        <h1>Từ điển</h1>
+        <p class="muted">${words.length} từ & cụm từ của ${live.length} buổi học. Gõ tiếng Anh hoặc tiếng Việt — có dấu hay không đều được.</p>
       </section>
-      <div class="dict-search field field-lg">
-        ${ICON.search}
-        <input id="dictInput" type="search" placeholder="Gõ từ tiếng Anh, nghĩa tiếng Việt hoặc dạng từ…" value="${esc(st.q)}" autocomplete="off" spellcheck="false" aria-label="Tìm trong từ điển">
+      <div class="dict">
+        <aside class="fpanel" id="fpanel" aria-label="Bộ lọc"></aside>
+        <div class="dict-main">
+          <div class="dict-top">
+            <div class="field field-lg">
+              ${ICON.search}
+              <input id="dictInput" type="search" placeholder="Tìm từ, nghĩa hoặc dạng từ…" value="${esc(st.q)}" autocomplete="off" spellcheck="false" aria-label="Tìm trong từ điển">
+            </div>
+            <button type="button" class="btn-filter" id="openFilters" aria-controls="fpanel">${ICON.filter}<span>Bộ lọc</span><span class="badge" id="fBadge" hidden></span></button>
+          </div>
+          <div class="pills" id="pills"></div>
+          <div class="toolbar" id="toolbar"></div>
+          <div id="results"></div>
+        </div>
       </div>
-      <div class="filters" id="filters"></div>
-      <div id="dictOut">
-        <div class="result-bar" id="resultBar"></div>
-        <div id="results"></div>
-      </div>`;
+      <div class="fpanel-backdrop" data-close></div>
+    </div>`;
 
     const input = $("#dictInput");
     const sync = () => {
       const p = new URLSearchParams();
-      Object.entries(st).forEach(([k, v]) => {
-        if (v && !(k === "s" && v === "az") && !(k === "v" && v === "pos")) p.set(k, v);
-      });
-      const qs = p.toString();
+      if (st.q) p.set("q", st.q);
+      if (st.b) p.set("b", st.b);
+      if (st.g) p.set("g", st.g);
+      if (st.p.length) p.set("p", st.p.join(","));
+      const qs = p.toString().replace(/%2C/g, ",");
       history.replaceState(null, "", "#/tu-dien" + (qs ? "?" + qs : ""));
     };
-    const draw = () => { drawFilters(st); drawResults(st); };
+    const draw = () => { drawPanel(st); drawPills(st); drawResults(st, pref); };
+    const sheet = (open) => document.body.classList.toggle("sheet-open", open);
 
     let timer;
     input.addEventListener("input", () => {
       clearTimeout(timer);
-      timer = setTimeout(() => { st.q = input.value; sync(); drawResults(st); }, 80);
+      timer = setTimeout(() => { st.q = input.value; sync(); draw(); }, 80);
     });
-    $("#filters").addEventListener("click", (e) => {
-      const b = e.target.closest("[data-f]");
-      if (!b) return;
-      const k = b.dataset.f, v = b.dataset.v;
-      st[k] = st[k] === v && k !== "s" && k !== "v" ? "" : v;
-      if (k === "b" || k === "t") st.g = "";
-      sync(); draw();
-    });
-    $("#filters").addEventListener("change", (e) => {
-      if (e.target.id === "sortSel") { st.s = e.target.value; sync(); drawResults(st); }
-    });
-    $("#dictOut").addEventListener("click", (e) => {
-      if (e.target.closest("[data-reset]")) {
-        Object.assign(st, { q: "", b: "", t: "", g: "", p: "" });
-        input.value = "";
-        sync(); draw(); input.focus();
+    $("#openFilters").addEventListener("click", () => sheet(true));
+
+    const root = $(".dict-page");
+    root.addEventListener("click", (e) => {
+      const t = e.target;
+      const f = t.closest("[data-f]");
+      if (f) {
+        const k = f.dataset.f, v = f.dataset.v;
+        if (k === "p") st.p = st.p.includes(v) ? st.p.filter((x) => x !== v) : POS_ORDER.filter((x) => x === v || st.p.includes(x));
+        else st[k] = v;
+        if (k === "b") st.g = "";
+        sync(); draw(); return;
       }
+      const rm = t.closest("[data-rm]");
+      if (rm) {
+        const k = rm.dataset.rm;
+        if (k === "p") st.p = st.p.filter((x) => x !== rm.dataset.v);
+        else st[k] = "";
+        if (k === "b") st.g = "";
+        if (k === "q") input.value = "";
+        sync(); draw(); return;
+      }
+      if (t.closest("[data-reset]")) {
+        Object.assign(st, { q: "", b: "", g: "", p: [] });
+        input.value = "";
+        sync(); draw(); return;
+      }
+      if (t.closest("[data-close]")) { sheet(false); return; }
+      const lay = t.closest("[data-layout]");
+      if (lay) { pref.layout = lay.dataset.layout; store.set("yose-layout", pref.layout); drawResults(st, pref); }
+    });
+    root.addEventListener("change", (e) => {
+      if (e.target.id === "groupSel") { pref.group = e.target.value; store.set("yose-dict-group", pref.group); drawResults(st, pref); }
     });
     draw();
     if (!st.q && !("ontouchstart" in window)) input.focus();
   }
 
-  function scopeWords(st, skip) {
-    return words.filter((w) =>
+  // danh sách từ theo bộ lọc; skip = bỏ qua một bộ lọc để đếm số lượng cho chính nó
+  function filtered(st, skip) {
+    return searchWords(st.q, words.filter((w) =>
       (skip === "b" || !st.b || String(w.lesson.id) === st.b) &&
-      (skip === "t" || !st.t || w.lesson.topic === st.t) &&
-      (skip === "g" || !st.g || `${w.lesson.id}:${w.group}` === st.g) &&
-      (skip === "p" || !st.p || w.pos === st.p));
+      (skip === "b" || skip === "g" || !st.g || `${w.lesson.id}:${w.group}` === st.g) &&
+      (skip === "p" || !st.p.length || st.p.includes(w.pos))));
   }
 
-  function drawFilters(st) {
-    const chip = (k, v, label, count, extra = "") =>
-      `<button type="button" class="chip ${st[k] === v ? "on" : ""}" data-f="${k}" data-v="${esc(v)}" aria-pressed="${st[k] === v}">${extra}${label}${count != null ? `<span class="chip-count">${count}</span>` : ""}</button>`;
-    const inQuery = (list) => searchWords(st.q, list);
-    const lc = countBy(inQuery(scopeWords(st, "b")), (w) => w.lesson.id);
-    const tc = countBy(inQuery(scopeWords(st, "t")), (w) => w.lesson.topic);
-    const pc = countBy(inQuery(scopeWords(st, "p")), (w) => w.pos);
-    const gc = countBy(inQuery(scopeWords(st, "g")), (w) => `${w.lesson.id}:${w.group}`);
-    const groupLessons = live.filter((l) => (!st.b || String(l.id) === st.b) && (!st.t || l.topic === st.t));
-    const showGroups = (st.b || st.t) && groupLessons.some((l) => (l.groups || []).length);
+  function drawPanel(st) {
+    const allB = filtered(st, "b");
+    const lc = countBy(allB, (w) => w.lesson.id);
+    const gc = countBy(filtered(st, "g"), (w) => `${w.lesson.id}:${w.group}`);
+    const pc = countBy(filtered(st, "p"), (w) => w.pos);
+    const total = filtered(st).length;
+    const opt = (kind, on, k, v, inner, n) =>
+      `<button type="button" class="opt opt-${kind}${on ? " on" : ""}" data-f="${k}" data-v="${esc(v)}" aria-pressed="${on}"${!on && !n ? " disabled" : ""}>
+        <i class="mark" aria-hidden="true"></i>${inner}<span class="n">${n}</span></button>`;
+    const nActive = (st.b ? 1 : 0) + (st.g ? 1 : 0) + st.p.length;
 
-    $("#filters").innerHTML = `
-      <div class="frow"><span class="flabel">Buổi</span><div class="chips">
-        ${chip("b", "", "Tất cả")}
-        ${live.map((l) => chip("b", String(l.id), `Buổi ${l.id}`, lc[l.id] || 0)).join("")}
-      </div></div>
-      <div class="frow"><span class="flabel">Chủ đề</span><div class="chips">
-        ${chip("t", "", "Tất cả")}
-        ${topics.map((t) => chip("t", t, esc(t), tc[t] || 0)).join("")}
-      </div></div>
-      ${showGroups ? `<div class="frow"><span class="flabel">Nhóm từ</span><div class="chips">
-        ${chip("g", "", "Tất cả")}
-        ${groupLessons.flatMap((l) => (l.groups || []).map((g) => chip("g", `${l.id}:${g.id}`, esc(g.name), gc[`${l.id}:${g.id}`] || 0))).join("")}
-      </div></div>` : ""}
-      <div class="frow"><span class="flabel">Loại từ</span><div class="chips">
-        ${chip("p", "", "Tất cả")}
-        ${POS_ORDER.filter((p) => words.some((w) => w.pos === p)).map((p) => chip("p", p, esc(POS[p].label), pc[p] || 0, `<i class="dot dot-${p}"></i>`)).join("")}
-      </div></div>
-      <div class="frow frow-tools">
-        <label class="select"><span>Sắp xếp</span>
-          <select id="sortSel">${Object.entries(SORTS).map(([k, v]) => `<option value="${k}" ${st.s === k ? "selected" : ""}>${v}</option>`).join("")}</select>
-        </label>
-        <div class="seg" role="group" aria-label="Kiểu hiển thị">
-          <button type="button" data-f="v" data-v="pos" class="${st.v === "pos" ? "on" : ""}">Nhóm theo loại từ</button>
-          <button type="button" data-f="v" data-v="flat" class="${st.v === "flat" ? "on" : ""}">Danh sách</button>
-        </div>
-      </div>`;
+    $("#fpanel").innerHTML = `
+      <div class="fp-head">
+        <h2>Bộ lọc</h2>
+        ${nActive ? `<button type="button" class="link-btn" data-reset>Xóa lọc</button>` : ""}
+        <button type="button" class="icon-btn fp-close" data-close aria-label="Đóng bộ lọc">${ICON.x}</button>
+      </div>
+      <div class="fp-body">
+        <section class="fp-sec">
+          <h3>Buổi học</h3>
+          ${opt("radio", !st.b, "b", "", `<span class="opt-text">Tất cả các buổi</span>`, allB.length)}
+          ${live.map((l) => {
+            const on = String(l.id) === st.b;
+            const groups = on && (l.groups || []).length
+              ? `<div class="opt-sub">
+                  ${opt("radio", !st.g, "g", "", `<span class="opt-text">Tất cả nhóm từ</span>`, lc[l.id] || 0)}
+                  ${l.groups.map((g) => opt("radio", st.g === `${l.id}:${g.id}`, "g", `${l.id}:${g.id}`, `<span class="opt-text">${esc(g.name)}</span>`, gc[`${l.id}:${g.id}`] || 0)).join("")}
+                </div>`
+              : "";
+            return opt("radio", on, "b", String(l.id), `<span class="opt-num">${l.id}</span><span class="opt-text">${esc(l.title)}<small>${esc(l.topic)}</small></span>`, lc[l.id] || 0) + groups;
+          }).join("")}
+        </section>
+        <section class="fp-sec">
+          <h3>Loại từ <small>chọn được nhiều</small></h3>
+          ${POS_ORDER.filter((p) => words.some((w) => w.pos === p)).map((p) =>
+            opt("check", st.p.includes(p), "p", p, `${posBadge(p)}<span class="opt-text">${esc(POS[p].label)}</span>`, pc[p] || 0)).join("")}
+        </section>
+      </div>
+      <div class="fp-foot"><button type="button" class="btn btn-block" data-close>Xem ${total} kết quả</button></div>`;
+
+    const badge = $("#fBadge");
+    badge.hidden = !nActive;
+    badge.textContent = nActive;
   }
 
-  function drawResults(st) {
-    let list = searchWords(st.q, scopeWords(st));
-    // khi có từ khóa và sắp xếp A→Z ở dạng danh sách, ưu tiên độ khớp; còn lại sắp theo lựa chọn
-    if (!(st.q.trim() && st.v === "flat" && st.s === "az")) {
-      if (st.s === "az") list.sort(byWord);
-      else if (st.s === "za") list.sort((a, b) => byWord(b, a));
-      else list.sort((a, b) => a.lesson.id - b.lesson.id || a.order - b.order);
+  function drawPills(st) {
+    const pills = [];
+    if (st.q) pills.push(["q", "", `${ICON.search}“${esc(st.q)}”`]);
+    if (st.b) pills.push(["b", "", `Buổi ${esc(st.b)}`]);
+    if (st.g) {
+      const [lid, gid] = st.g.split(":");
+      const g = (lessonById(lid)?.groups || []).find((x) => x.id === gid);
+      if (g) pills.push(["g", "", esc(g.name)]);
     }
-    const active = [st.q && `“${esc(st.q)}”`, st.b && `Buổi ${esc(st.b)}`, st.t && esc(st.t), st.p && esc(POS[st.p]?.label)].filter(Boolean);
-    $("#resultBar").innerHTML = `<span><b>${list.length}</b> kết quả${active.length ? ` cho ${active.join(" · ")}` : ""}</span>
-      ${active.length || st.g ? `<button type="button" class="link-btn" data-reset>${ICON.x} Xóa bộ lọc</button>` : ""}`;
+    st.p.forEach((p) => pills.push(["p", p, `<i class="dot dot-${p}"></i>${esc(POS[p].label)}`]));
+    $("#pills").innerHTML = pills.length
+      ? pills.map(([k, v, label]) => `<button type="button" class="pill" data-rm="${k}" data-v="${esc(v)}" aria-label="Bỏ lọc">${label}${ICON.x}</button>`).join("") +
+        (pills.length > 1 ? `<button type="button" class="link-btn" data-reset>Xóa tất cả</button>` : "")
+      : "";
+  }
+
+  function drawResults(st, pref) {
+    const list = filtered(st);
+    // có từ khóa và không nhóm: giữ thứ tự theo độ khớp; còn lại A → Z
+    if (!(st.q.trim() && pref.group === "none")) list.sort(byWord);
+    $("#toolbar").innerHTML = `
+      <div class="tb-count"><b>${list.length}</b> từ & cụm từ</div>
+      <div class="tb-tools">
+        <label class="tb-select"><span>Nhóm theo</span>
+          <select id="groupSel">${Object.entries(GROUPINGS).map(([k, v]) => `<option value="${k}"${pref.group === k ? " selected" : ""}>${v}</option>`).join("")}</select>
+        </label>
+        ${layoutSeg(pref.layout)}
+      </div>`;
     $("#results").innerHTML = list.length
-      ? wordSections(list, st.v === "pos" ? "pos" : "flat", { q: st.q, showLesson: true })
+      ? wordSections(list, pref.group === "none" ? "flat" : pref.group, { q: st.q, showLesson: true, layout: pref.layout })
       : `<div class="empty">
           <div class="empty-icon">${ICON.search}</div>
           <h3>Chưa có từ nào khớp</h3>
-          <p class="muted">Thử gõ không dấu, gõ một phần của từ, hoặc xóa bớt bộ lọc.</p>
+          <p class="muted">Thử gõ không dấu, gõ một phần của từ, hoặc bỏ bớt bộ lọc.</p>
           <button type="button" class="btn" data-reset>Xóa bộ lọc</button>
         </div>`;
   }
@@ -668,7 +750,7 @@
     app.innerHTML = `
       <a class="crumb" href="#/">${ICON.back} Trang chủ</a>
       <header class="lesson-hero">
-        <div class="lh-meta"><span class="lc-num">Buổi ${l.id}</span><a class="tag" href="#/tu-dien?t=${encodeURIComponent(l.topic)}">${esc(l.topic)}</a></div>
+        <div class="lh-meta"><span class="lc-num">Buổi ${l.id}</span><a class="tag" href="#/tu-dien?b=${l.id}" title="Tra từ của buổi này trong Từ điển">${esc(l.topic)}</a></div>
         <h1>${esc(l.title)}</h1>
         <p class="lh-vi">${esc(l.titleVi)}</p>
         ${l.summary ? `<p class="muted lh-sum">${esc(l.summary)}</p>` : ""}
@@ -682,10 +764,11 @@
           <h2>Từ vựng</h2>
           <div class="lsec-tools">
             <div class="field field-sm">${ICON.search}<input id="lessonFilter" type="search" placeholder="Lọc từ trong buổi…" autocomplete="off" aria-label="Lọc từ trong buổi"></div>
-            <div class="seg" role="group" aria-label="Sắp xếp từ vựng">
-              <button type="button" data-mode="pos">Theo loại từ</button>
-              <button type="button" data-mode="group">Theo nhóm chủ đề</button>
+            <div class="seg" role="group" aria-label="Nhóm từ vựng theo">
+              <button type="button" data-mode="pos">Loại từ</button>
+              <button type="button" data-mode="group">Nhóm chủ đề</button>
             </div>
+            <span id="lessonLayout"></span>
           </div>
         </div>
         <div id="lessonWords"></div>
@@ -761,16 +844,22 @@
       ${pager}`;
 
     const box = $("#lessonWords"), filter = $("#lessonFilter");
+    let layout = store.get("yose-layout", "card") === "table" ? "table" : "card";
     const drawWords = () => {
       $$("[data-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === mode));
+      $("#lessonLayout").innerHTML = layoutSeg(layout);
       let list = searchWords(filter.value, lw);
       if (mode === "pos") list.sort(byWord); else list.sort((a, b) => a.order - b.order);
       box.innerHTML = list.length
-        ? wordSections(list, mode, { q: filter.value, groups: l.groups })
+        ? wordSections(list, mode, { q: filter.value, groups: l.groups, layout })
         : `<div class="empty"><p class="muted">Không có từ nào khớp “${esc(filter.value)}”.</p></div>`;
     };
     filter.addEventListener("input", drawWords);
     $$("[data-mode]").forEach((b) => b.addEventListener("click", () => { mode = b.dataset.mode; store.set("yose-lesson-view", mode); drawWords(); }));
+    $("#lessonLayout").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-layout]");
+      if (b) { layout = b.dataset.layout; store.set("yose-layout", layout); drawWords(); }
+    });
     drawWords();
 
     $("#toggleVi")?.addEventListener("click", (e) => {
@@ -801,7 +890,9 @@
       const f = $("#lessonFilter");
       if (f && f.value) { f.value = ""; f.dispatchEvent(new Event("input")); el = document.getElementById("w-" + id); }
     }
-    if (el) flash(el);
+    if (!el) return;
+    if (el.tagName === "DETAILS") el.open = true;
+    flash(el);
   }
 
   function flash(el) {
