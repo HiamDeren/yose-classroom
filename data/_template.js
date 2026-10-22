@@ -43,9 +43,22 @@ YOSE.addLesson({
 
   grammar: [
     { title: "Tên điểm ngữ pháp", subtitle: "", formula: "Công thức", note: "Ghi chú",
-      examples: [{ en: "Example.", vi: "Ví dụ." }] }
+      // tùy chọn — công thức chia 2 vế (tô màu tím / xanh), clauses: true để tô màu mệnh đề If trong ví dụ
+      parts: [{ label: "Mệnh đề If", value: "If + S + V", hint: "hiện tại đơn" }, { label: "Mệnh đề chính", value: "S + will + V" }],
+      clauses: true,
+      uses: ["Dùng khi…"],
+      examples: [{ en: "Example.", vi: "Ví dụ." }],
+      variants: [{ label: "Biến thể", en: "Example.", vi: "Ví dụ." }],
+      mistakes: [{ wrong: "Câu sai.", right: "Câu đúng.", why: "Giải thích." }] }
   ],
+  grammarCompare: { title: "So sánh", cols: ["", "A", "B"], rows: [["Tiêu chí", "…", "…"]] },  // tùy chọn
   grammarTip: "",
+
+  // tùy chọn — bài luyện tập điền từ, học viên tự kiểm tra
+  exercises: {
+    title: "Luyện tập", intro: "Điền dạng đúng của động từ…",
+    items: [{ q: "If you ___ late, you will feel tired.", hint: "stay up", a: ["stay up"], explain: "Giải thích đáp án." }]
+  },
 
   sample: { en: "Sample answer in English.", vi: "Bản dịch." },
 

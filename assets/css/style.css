@@ -463,6 +463,82 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
 .g-vi { color: var(--ink); }
 .g-notes { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; color: var(--ink-2); }
 .g-notes li::marker { color: var(--accent); }
+.g-head { display: flex; flex-direction: column; gap: 2px; }
+.g-note { color: var(--ink-2); }
+.g-sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+.g-block + .g-block { margin-top: 18px; }
+.g-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 6px; }
+.g-uses { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; }
+.g-uses li::marker { color: var(--brand); }
+
+/* công thức chia 2 vế */
+.g-parts { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.g-part { flex: 1 1 240px; display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; border: 1px solid transparent; }
+.g-part small { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; opacity: .85; }
+.g-part b { font-size: 17px; }
+.g-part span { font-size: 13px; color: var(--muted); }
+.g-part-if { background: var(--c-adv-bg); color: var(--c-adv); }
+.g-part-main { background: var(--accent-soft); color: var(--accent); }
+.g-join { align-self: center; font-size: 26px; font-weight: 800; color: var(--muted); }
+.cl-if { color: var(--c-adv); }
+.cl-main { color: var(--accent); }
+
+.g-variants { display: grid; gap: 10px; }
+.g-variant { padding: 10px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); display: grid; gap: 2px; }
+.g-vlabel { font-size: 12.5px; font-weight: 700; color: var(--brand-ink); }
+.g-mistakes { display: grid; gap: 10px; }
+.mistake { padding: 10px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); display: grid; gap: 3px; font-size: 14.5px; }
+.mistake p { display: flex; gap: 8px; }
+.mistake p > span { flex: none; width: 18px; font-weight: 800; }
+.mk-wrong { color: var(--muted); }
+.mk-wrong span { color: #d33c3c; }
+.mk-wrong s { text-decoration-color: #d33c3c; text-decoration-thickness: 1.5px; }
+.mk-right span { color: #23885f; }
+.mk-right { color: var(--ink); font-weight: 500; }
+.mk-why { color: var(--ink-2); font-size: 13.5px; padding-left: 26px; }
+
+/* bảng so sánh */
+.g-compare { margin-top: 16px; padding: 20px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+.g-compare h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+.g-compare-scroll { overflow-x: auto; }
+.g-compare table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+.g-compare th, .g-compare td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.g-compare thead th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.g-compare thead th:nth-child(2) { color: var(--c-verb); }
+.g-compare thead th:nth-child(3) { color: var(--c-adv); }
+.g-compare tbody th { font-weight: 600; color: var(--ink-2); width: 140px; }
+.g-compare tbody tr:last-child > * { border-bottom: 0; }
+
+/* bài luyện tập */
+.btn-sm { height: 32px; padding: 0 12px; font-size: 14px; border-radius: 9px; }
+.quiz-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 12px 0; font-size: 15px; color: var(--muted); }
+.quiz-bar b { color: var(--accent); font-size: 18px; }
+.quiz-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.quiz { list-style: none; counter-reset: q; padding: 0; margin: 0; display: grid; gap: 10px; }
+.q { counter-increment: q; position: relative; padding: 14px 16px 14px 52px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 8px; }
+.q::before {
+  content: counter(q); position: absolute; left: 14px; top: 14px; width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center; font-size: 13px; font-weight: 800; background: var(--surface-2); color: var(--muted);
+}
+.q.ok { border-color: color-mix(in srgb, #23885f 45%, transparent); }
+.q.ok::before { content: "✓"; background: #23885f; color: #fff; }
+.q.bad { border-color: color-mix(in srgb, #d33c3c 40%, transparent); }
+.q.shown::before { background: var(--c-idiom-bg); color: var(--c-idiom); }
+.q-text { font-size: 16.5px; line-height: 2; }
+.q-in {
+  margin: 0 6px; padding: 2px 8px; height: 32px; min-width: 90px; border: 0; border-bottom: 2px solid var(--line-2);
+  background: var(--surface-2); border-radius: 6px 6px 0 0; font-weight: 600; color: var(--brand-ink); outline: none; max-width: 100%;
+}
+.q-in::placeholder { color: var(--muted); font-weight: 400; opacity: .7; }
+.q-in:focus { border-bottom-color: var(--brand); background: var(--brand-soft); }
+.q.ok .q-in { border-bottom-color: #23885f; color: #23885f; }
+.q.bad .q-in { border-bottom-color: #d33c3c; }
+.q-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-hint { font-size: 14px; color: var(--muted); }
+.q-fb { font-size: 14.5px; color: var(--ink-2); }
+.q.ok .q-fb b { color: #23885f; }
+.q.bad .q-fb b { color: #d33c3c; }
+
 .tip { margin-top: 16px; padding: 14px 18px; border-radius: 12px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
 .tip b { color: var(--accent); display: block; margin-bottom: 2px; }
 
@@ -554,6 +630,10 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
   .toolbar { gap: 8px; }
   .tb-select span { display: none; }
   .grammar-grid { grid-template-columns: 1fr; }
+  .g-cols { grid-template-columns: 1fr; gap: 18px; }
+  .g-join { display: none; }
+  .q { padding: 12px 12px 12px 46px; }
+  .q::before { left: 12px; top: 12px; }
   .g-items { grid-template-columns: 1fr; }
   .g-word { width: 48px; }
   .lsec-tools, .lsec-tools .field-sm { width: 100%; }

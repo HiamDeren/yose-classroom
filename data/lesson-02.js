@@ -119,30 +119,98 @@ YOSE.addLesson({
   grammar: [
     {
       title: "Câu điều kiện loại 1",
-      subtitle: "Điều kiện có thể xảy ra",
-      formula: "If + hiện tại đơn, S + will / can / may + V (nguyên mẫu)",
-      note: "Có thể đảo mệnh đề If ra sau; khi đó thường không cần dấu phẩy.",
+      subtitle: "Điều kiện có thể xảy ra ở hiện tại hoặc tương lai",
+      clauses: true,
+      parts: [
+        { label: "Mệnh đề If (điều kiện)", value: "If + S + V(s/es)", hint: "hiện tại đơn" },
+        { label: "Mệnh đề chính (kết quả)", value: "S + will / can / may + V", hint: "động từ nguyên mẫu" }
+      ],
+      note: "Có thể đảo mệnh đề If ra sau; khi đó thường không cần dấu phẩy: “You will feel more energetic if you get enough sleep.”",
+      uses: [
+        "Nói về điều có thật, hoàn toàn có thể xảy ra và kết quả của nó.",
+        "Đưa ra lời khuyên hoặc cảnh báo về sức khỏe, thói quen.",
+        "Nói về kế hoạch, dự định phụ thuộc vào một điều kiện."
+      ],
       examples: [
         { en: "If you exercise regularly, you can improve your physical health.", vi: "Nếu tập thể dục thường xuyên, bạn có thể cải thiện sức khỏe thể chất." },
         { en: "If you get enough sleep, you will feel more energetic.", vi: "Nếu ngủ đủ, bạn sẽ cảm thấy nhiều năng lượng hơn." },
         { en: "If you eat a balanced diet, you can maintain a healthy weight.", vi: "Nếu ăn uống cân bằng, bạn có thể duy trì cân nặng hợp lý." },
-        { en: "If you drink too many sugary drinks, you may increase your risk of diabetes.", vi: "Nếu uống quá nhiều đồ uống có đường, bạn có thể tăng nguy cơ mắc tiểu đường." }
+        { en: "If you drink too many sugary drinks, you may increase your risk of diabetes.", vi: "Nếu uống quá nhiều đồ uống có đường, bạn có thể tăng nguy cơ mắc tiểu đường." },
+        { en: "If you stay up late, you will feel sleepy the next day.", vi: "Nếu thức khuya, hôm sau bạn sẽ buồn ngủ." },
+        { en: "If I don't exercise regularly, I may gain weight.", vi: "Nếu không tập thể dục đều đặn, tôi có thể tăng cân." }
+      ],
+      variants: [
+        { label: "Câu mệnh lệnh ở mệnh đề chính", en: "If you feel stressed, go for a walk.", vi: "Nếu thấy căng thẳng, hãy đi dạo." },
+        { label: "Lời khuyên với should", en: "If you want to lose weight, you should cut down on sugar.", vi: "Nếu muốn giảm cân, bạn nên giảm đường." },
+        { label: "Unless = If … not", en: "Unless you stay hydrated, you may get a headache.", vi: "Nếu không uống đủ nước, bạn có thể bị đau đầu. (= If you don't stay hydrated, …)" }
+      ],
+      mistakes: [
+        { wrong: "If you will exercise regularly, you will be healthier.", right: "If you exercise regularly, you will be healthier.", why: "Không dùng will trong mệnh đề If." },
+        { wrong: "If she eat more vegetables, she will feel better.", right: "If she eats more vegetables, she will feel better.", why: "Hiện tại đơn: chủ ngữ ngôi thứ ba số ít thì động từ thêm -s/-es." },
+        { wrong: "Unless you don't sleep enough, you will feel tired.", right: "Unless you sleep enough, you will feel tired.", why: "Unless đã mang nghĩa phủ định, không thêm not." }
       ]
     },
     {
       title: "Câu điều kiện loại 2",
-      subtitle: "Tình huống giả định hoặc khó xảy ra ở hiện tại",
-      formula: "If + quá khứ đơn, S + would / could + V (nguyên mẫu)",
-      note: "Với động từ be, thường dùng were cho mọi chủ ngữ trong văn phong chuẩn.",
+      subtitle: "Giả định không có thật hoặc khó xảy ra ở hiện tại",
+      clauses: true,
+      parts: [
+        { label: "Mệnh đề If (giả định)", value: "If + S + V2/V-ed", hint: "quá khứ đơn · be → were" },
+        { label: "Mệnh đề chính (kết quả)", value: "S + would / could / might + V", hint: "động từ nguyên mẫu" }
+      ],
+      note: "Dù dùng quá khứ đơn, câu vẫn nói về hiện tại. Với động từ be, văn phong chuẩn dùng were cho mọi chủ ngữ.",
+      uses: [
+        "Tưởng tượng điều trái với thực tế hiện tại (thực tế: tôi không có nhiều thời gian rảnh).",
+        "Khuyên nhủ nhẹ nhàng với “If I were you, I would…”.",
+        "Nói về điều khó có khả năng xảy ra."
+      ],
       examples: [
         { en: "If I had more free time, I would exercise every day.", vi: "Nếu có nhiều thời gian rảnh hơn, tôi sẽ tập thể dục mỗi ngày." },
         { en: "If I were more organized, I could prepare healthy meals in advance.", vi: "Nếu ngăn nắp hơn, tôi có thể chuẩn bị bữa ăn lành mạnh từ trước." },
-        { en: "If he did not stay up so late, he would feel less tired.", vi: "Nếu anh ấy không thức khuya như vậy, anh ấy sẽ đỡ mệt hơn." }
+        { en: "If he did not stay up so late, he would feel less tired.", vi: "Nếu anh ấy không thức khuya như vậy, anh ấy sẽ đỡ mệt hơn." },
+        { en: "If she didn't sit for long hours, she wouldn't have back pain.", vi: "Nếu cô ấy không ngồi nhiều giờ liền, cô ấy sẽ không bị đau lưng." },
+        { en: "If I lived near a park, I could go jogging every morning.", vi: "Nếu sống gần công viên, tôi có thể chạy bộ mỗi sáng." }
+      ],
+      variants: [
+        { label: "Lời khuyên: If I were you", en: "If I were you, I would cut down on sugary drinks.", vi: "Nếu tôi là bạn, tôi sẽ giảm uống đồ ngọt." },
+        { label: "Câu hỏi", en: "What would you do if you had a whole day off?", vi: "Bạn sẽ làm gì nếu được nghỉ trọn một ngày?" },
+        { label: "Might = có lẽ sẽ", en: "If I ate less fast food, I might lose some weight.", vi: "Nếu ăn ít đồ ăn nhanh hơn, có lẽ tôi sẽ giảm được vài cân." }
+      ],
+      mistakes: [
+        { wrong: "If I would have more time, I would cook at home.", right: "If I had more time, I would cook at home.", why: "Không dùng would trong mệnh đề If." },
+        { wrong: "If I had more time, I will exercise every day.", right: "If I had more time, I would exercise every day.", why: "Không trộn loại 1 và loại 2: mệnh đề If ở quá khứ thì mệnh đề chính dùng would." },
+        { wrong: "If I was you, I would see a doctor.", right: "If I were you, I would see a doctor.", why: "“If I were you” là cụm cố định; dùng were cho mọi chủ ngữ." }
       ]
     }
   ],
+  grammarCompare: {
+    title: "So sánh loại 1 và loại 2",
+    cols: ["", "Loại 1", "Loại 2"],
+    rows: [
+      ["Khả năng", "Có thật, có thể xảy ra", "Không có thật / khó xảy ra"],
+      ["Thời gian", "Hiện tại – tương lai", "Hiện tại (giả định)"],
+      ["Mệnh đề If", "Hiện tại đơn", "Quá khứ đơn (be → were)"],
+      ["Mệnh đề chính", "will / can / may + V", "would / could / might + V"],
+      ["Ví dụ", "If I get enough sleep, I will feel better.", "If I got enough sleep, I would feel better. (thực tế: tôi không ngủ đủ)"]
+    ]
+  },
   grammarTip:
-    "Loại 1 = có khả năng thật (If + hiện tại, will/can + V). Loại 2 = giả định (If + quá khứ, would/could + V). Không dùng “will” ngay sau If trong mẫu cơ bản.",
+    "Loại 1 = có khả năng thật (If + hiện tại, will/can + V). Loại 2 = giả định (If + quá khứ, would/could + V). Không dùng “will” hay “would” ngay sau If trong mẫu cơ bản.",
+
+  exercises: {
+    title: "Luyện tập câu điều kiện",
+    intro: "Điền dạng đúng của động từ trong ngoặc (hoặc chọn từ gợi ý), rồi bấm Kiểm tra hoặc nhấn Enter.",
+    items: [
+      { q: "If you ___ too much fast food, you will gain weight.", hint: "eat", a: ["eat"], explain: "Loại 1: mệnh đề If dùng hiện tại đơn." },
+      { q: "If I ___ you, I would drink more water.", hint: "be", a: ["were"], explain: "Loại 2: “If I were you” — dùng were cho mọi chủ ngữ." },
+      { q: "If she exercises regularly, she ___ more energetic.", hint: "feel", a: ["will feel", "'ll feel", "can feel"], explain: "Loại 1: mệnh đề chính dùng will + V." },
+      { q: "If he ___ so late, he wouldn't feel tired.", hint: "not / stay up", a: ["didn't stay up", "did not stay up"], explain: "Loại 2: mệnh đề If dùng quá khứ đơn, phủ định với didn't + V." },
+      { q: "If I had a bike, I ___ to work.", hint: "cycle", a: ["would cycle", "'d cycle", "could cycle"], explain: "Loại 2: mệnh đề chính dùng would + V." },
+      { q: "___ you get enough sleep, you will feel exhausted.", hint: "If / Unless", a: ["unless"], explain: "Unless = If … not: nếu không ngủ đủ thì sẽ kiệt sức." },
+      { q: "If you ___ breakfast, you may overeat at lunch.", hint: "skip", a: ["skip"], explain: "Loại 1: hiện tại đơn với chủ ngữ you." },
+      { q: "What ___ you do if you had more free time?", hint: "will / would", a: ["would"], explain: "Loại 2 (had) nên câu hỏi dùng would." }
+    ]
+  },
 
   sample: {
     en: "I try to lead a healthy lifestyle. I usually have home-cooked meals because I can choose fresh ingredients and control my portions. I also eat plenty of vegetables and exercise about three times a week, which helps me stay fit and reduce stress. I stay hydrated by drinking water throughout the day, and I try to get enough sleep. I used to stay up late and spend too much time on my phone, so I often felt tired. Now I am changing my routine one step at a time. If I keep these habits, I will feel healthier and more energetic.",

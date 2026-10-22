@@ -93,7 +93,8 @@
     (l.grammar || []).forEach((g, gi) => {
       const gid = "b" + l.id + "-g" + gi;
       grammarIdx.push({ id: gid, lesson: l, title: g.title, sub: g.subtitle || g.formula || "",
-        _t: norm([g.title, g.subtitle, g.formula, g.note, ...(g.examples || []).map((x) => x.en)].join(" ")) });
+        _t: norm([g.title, g.subtitle, g.formula, g.note, ...(g.parts || []).map((x) => x.value), ...(g.uses || []),
+          ...(g.examples || []).map((x) => x.en), ...(g.variants || []).map((x) => x.label + " " + x.en)].join(" ")) });
       (g.items || []).forEach((it, ii) => {
         grammarIdx.push({ id: gid + "-" + ii, lesson: l, title: it.word + " — " + it.vi, sub: g.title, word: norm(it.word),
           _t: norm([it.word, it.vi, it.use, it.en, it.exVi].join(" ")) });
@@ -741,6 +742,7 @@
       ["sec-vocab", "Từ vựng", lw.length],
       ["sec-structures", "Cấu trúc câu", (l.structures || []).length],
       ["sec-grammar", "Ngữ pháp", (l.grammar || []).length],
+      ["sec-exercises", "Luyện tập", l.exercises ? l.exercises.items.length : 0],
       ["sec-sample", "Bài nói mẫu", l.sample ? 1 : 0],
       ["sec-practice", "Tự luyện", (l.practice || []).length],
       ["sec-notes", "Lưu ý", (l.notes || []).length]
@@ -791,29 +793,14 @@
 
       ${(l.grammar || []).length ? `<section class="lsec" id="sec-grammar">
         <div class="lsec-head"><h2>Ngữ pháp</h2></div>
-        <div class="grammar-grid">${l.grammar.map((g, gi) => `
-          <article class="grammar ${g.items ? "grammar-wide" : ""}" id="b${l.id}-g${gi}">
-            <h3>${esc(g.title)}</h3>
-            ${g.subtitle ? `<p class="muted">${esc(g.subtitle)}</p>` : ""}
-            ${g.acronym ? `<div class="acronym">${[...g.acronym].map((c) => `<span>${esc(c)}</span>`).join("")}</div>` : ""}
-            ${g.formula ? `<div class="formula">${esc(g.formula)}</div>` : ""}
-            ${g.note ? `<p class="small">${esc(g.note)}</p>` : ""}
-            ${g.items ? `<div class="g-items">${g.items.map((it, ii) => `
-              <div class="g-item" id="b${l.id}-g${gi}-${ii}">
-                <div class="g-word"><span class="g-letter">${esc(it.word[0].toUpperCase())}</span><b>${esc(it.word)}</b></div>
-                <div class="g-body">
-                  <p><b class="g-vi">${esc(it.vi)}</b>${it.use ? ` <span class="muted">— ${esc(it.use)}</span>` : ""}</p>
-                  <p class="ex-en">${esc(it.en)} ${speakBtn(it.en, "Nghe câu")}</p>
-                  ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
-                </div>
-              </div>`).join("")}</div>` : ""}
-            ${(g.examples || []).length ? `<ul class="g-examples">${g.examples.map((x) => `
-              <li><p class="ex-en">${esc(x.en)} ${speakBtn(x.en, "Nghe câu")}</p><p class="ex-vi">${esc(x.vi)}</p></li>`).join("")}
-            </ul>` : ""}
-            ${(g.notes || []).length ? `<ul class="g-notes">${g.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
-          </article>`).join("")}
-        </div>
+        <div class="grammar-grid">${l.grammar.map((g, gi) => grammarCard(l, g, gi)).join("")}</div>
+        ${l.grammarCompare ? compareTable(l.grammarCompare) : ""}
         ${l.grammarTip ? `<div class="tip"><b>Nhớ nhanh</b><p>${esc(l.grammarTip)}</p></div>` : ""}
+      </section>` : ""}
+
+      ${l.exercises ? `<section class="lsec" id="sec-exercises">
+        <div class="lsec-head"><h2>${esc(l.exercises.title || "Luyện tập")}</h2></div>
+        ${exercisesHTML(l.exercises)}
       </section>` : ""}
 
       ${l.sample ? `<section class="lsec" id="sec-sample">
@@ -862,6 +849,7 @@
     });
     drawWords();
 
+    if (l.exercises) bindExercises($("#sec-exercises"), l.exercises);
     $("#toggleVi")?.addEventListener("click", (e) => {
       const vi = $("#sampleVi");
       vi.hidden = !vi.hidden;
@@ -936,6 +924,133 @@
       pos = e;
     });
     return out + esc(text.slice(pos));
+  }
+
+  /* ---------- Ngữ pháp ---------- */
+  // tô màu mệnh đề If / mệnh đề chính trong câu điều kiện
+  function clauseHL(en) {
+    const m = /^((?:If|Unless)\b[^,]*,)\s*(.+)$/.exec(en);
+    return m ? `<span class="cl-if">${esc(m[1])}</span> <span class="cl-main">${esc(m[2])}</span>` : esc(en);
+  }
+  const gSub = (t) => `<h4 class="g-sub">${t}</h4>`;
+
+  function grammarCard(l, g, gi) {
+    const sent = (en) => (g.clauses ? clauseHL(en) : esc(en)) + " " + speakBtn(en, "Nghe câu");
+    const uses = (g.uses || []).length
+      ? `<div class="g-block">${gSub("Dùng khi")}<ul class="g-uses">${g.uses.map((u) => `<li>${esc(u)}</li>`).join("")}</ul></div>` : "";
+    const items = g.items
+      ? `<div class="g-items">${g.items.map((it, ii) => `
+          <div class="g-item" id="b${l.id}-g${gi}-${ii}">
+            <div class="g-word"><span class="g-letter">${esc(it.word[0].toUpperCase())}</span><b>${esc(it.word)}</b></div>
+            <div class="g-body">
+              <p><b class="g-vi">${esc(it.vi)}</b>${it.use ? ` <span class="muted">— ${esc(it.use)}</span>` : ""}</p>
+              <p class="ex-en">${esc(it.en)} ${speakBtn(it.en, "Nghe câu")}</p>
+              ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
+            </div>
+          </div>`).join("")}</div>` : "";
+    const examples = (g.examples || []).length
+      ? `<div class="g-block">${g.parts ? gSub("Ví dụ") : ""}<ul class="g-examples">${g.examples.map((x) => `
+          <li><p class="ex-en">${sent(x.en)}</p><p class="ex-vi">${esc(x.vi)}</p></li>`).join("")}</ul></div>` : "";
+    const variants = (g.variants || []).length
+      ? `<div class="g-block">${gSub("Mở rộng")}<div class="g-variants">${g.variants.map((v) => `
+          <div class="g-variant"><span class="g-vlabel">${esc(v.label)}</span><p class="ex-en">${sent(v.en)}</p><p class="ex-vi">${esc(v.vi)}</p></div>`).join("")}</div></div>` : "";
+    const mistakes = (g.mistakes || []).length
+      ? `<div class="g-block">${gSub("Lỗi thường gặp")}<div class="g-mistakes">${g.mistakes.map((m) => `
+          <div class="mistake">
+            <p class="mk-wrong"><span aria-label="Sai">✗</span><s>${esc(m.wrong)}</s></p>
+            <p class="mk-right"><span aria-label="Đúng">✓</span>${esc(m.right)}</p>
+            ${m.why ? `<p class="mk-why">${esc(m.why)}</p>` : ""}
+          </div>`).join("")}</div></div>` : "";
+    const parts = g.parts
+      ? `<div class="g-parts">${g.parts.map((pt, i) => `
+          <div class="g-part ${i ? "g-part-main" : "g-part-if"}"><small>${esc(pt.label)}</small><b>${esc(pt.value)}</b>${pt.hint ? `<span>${esc(pt.hint)}</span>` : ""}</div>`).join('<span class="g-join">,</span>')}</div>` : "";
+
+    return `<article class="grammar ${g.items || g.parts ? "grammar-wide" : ""}" id="b${l.id}-g${gi}">
+      <header class="g-head">
+        <h3>${esc(g.title)}</h3>
+        ${g.subtitle ? `<p class="muted">${esc(g.subtitle)}</p>` : ""}
+      </header>
+      ${g.acronym ? `<div class="acronym">${[...g.acronym].map((c) => `<span>${esc(c)}</span>`).join("")}</div>` : ""}
+      ${parts}
+      ${g.formula ? `<div class="formula">${esc(g.formula)}</div>` : ""}
+      ${g.note ? `<p class="small g-note">${esc(g.note)}</p>` : ""}
+      ${g.parts
+        ? `<div class="g-cols"><div>${uses}${examples}</div><div>${variants}${mistakes}</div></div>`
+        : uses + items + examples + variants + mistakes}
+      ${(g.notes || []).length ? `<ul class="g-notes">${g.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+    </article>`;
+  }
+
+  function compareTable(c) {
+    return `<div class="g-compare">
+      ${c.title ? `<h3>${esc(c.title)}</h3>` : ""}
+      <div class="g-compare-scroll"><table>
+        <thead><tr>${c.cols.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+        <tbody>${c.rows.map((r) => `<tr>${r.map((cell, i) => i ? `<td>${esc(cell)}</td>` : `<th scope="row">${esc(cell)}</th>`).join("")}</tr>`).join("")}</tbody>
+      </table></div>
+    </div>`;
+  }
+
+  /* ---------- Bài luyện tập (điền từ, tự chấm) ---------- */
+  const normAns = (s) => String(s || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[.!?]/g, "").replace(/\s+/g, " ").trim();
+
+  function exercisesHTML(ex) {
+    return `<p class="muted">${esc(ex.intro || "")}</p>
+      <div class="quiz-bar"><span id="quizScore">Đã đúng <b>0</b>/${ex.items.length}</span>
+        <span class="quiz-actions"><button type="button" class="btn btn-ghost btn-sm" data-quiz="all">Xem tất cả đáp án</button><button type="button" class="btn btn-ghost btn-sm" data-quiz="reset">Làm lại</button></span></div>
+      <ol class="quiz">${ex.items.map((it, i) => {
+        const [before, after] = it.q.split(/_{2,}/);
+        return `<li class="q" data-i="${i}">
+          <p class="q-text">${esc(before)}<input class="q-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Câu ${i + 1}: điền từ" size="${Math.max(8, (it.a[0] || "").length + 2)}">${esc(after || "")}</p>
+          <div class="q-row">
+            ${it.hint ? `<span class="q-hint">(${esc(it.hint)})</span>` : ""}
+            <button type="button" class="btn btn-soft btn-sm" data-quiz="check">Kiểm tra</button>
+            <button type="button" class="link-btn" data-quiz="show">Xem đáp án</button>
+          </div>
+          <p class="q-fb" hidden></p>
+        </li>`;
+      }).join("")}</ol>`;
+  }
+
+  function bindExercises(root, ex) {
+    const score = () => {
+      const n = $$(".q.ok", root).length;
+      $("#quizScore").innerHTML = `Đã đúng <b>${n}</b>/${ex.items.length}${n === ex.items.length ? " 🎉" : ""}`;
+    };
+    const check = (li, reveal) => {
+      const it = ex.items[+li.dataset.i];
+      const input = $(".q-in", li), fb = $(".q-fb", li);
+      if (reveal) input.value = it.a[0];
+      const val = normAns(input.value);
+      if (!val) { input.focus(); return; }
+      const ok = it.a.some((a) => normAns(a) === val);
+      li.classList.toggle("ok", ok && !reveal);
+      li.classList.toggle("bad", !ok);
+      li.classList.toggle("shown", !!reveal);
+      fb.hidden = false;
+      fb.innerHTML = (reveal ? `<b>Đáp án: ${esc(it.a[0])}</b>` : ok ? "<b>Chính xác!</b>" : `<b>Chưa đúng.</b> Thử lại hoặc bấm “Xem đáp án”.`) +
+        (it.explain && (ok || reveal) ? ` ${esc(it.explain)}` : "");
+      score();
+    };
+    root.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-quiz]");
+      if (!b) return;
+      const act = b.dataset.quiz;
+      if (act === "check" || act === "show") check(b.closest(".q"), act === "show");
+      else if (act === "all") $$(".q", root).forEach((li) => check(li, true));
+      else if (act === "reset") {
+        $$(".q", root).forEach((li) => { li.className = "q"; $(".q-in", li).value = ""; $(".q-fb", li).hidden = true; });
+        score();
+      }
+    });
+    root.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.classList.contains("q-in")) {
+        e.preventDefault();
+        const li = e.target.closest(".q");
+        check(li, false);
+        if (li.classList.contains("ok")) $(".q-in", li.nextElementSibling || li)?.focus();
+      }
+    });
   }
 
   // ô trống [..] trong bài mẫu: học viên thay bằng thông tin của mình
