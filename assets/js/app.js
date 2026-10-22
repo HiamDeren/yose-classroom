@@ -12,7 +12,8 @@
     vphrase: { short: "V-phr", label: "Cụm từ với động từ", en: "Verb collocation" },
     adj:     { short: "Adj",   label: "Tính từ",            en: "Adjective" },
     adv:     { short: "Adv",   label: "Trạng từ",           en: "Adverb" },
-    idiom:   { short: "Idiom", label: "Thành ngữ",          en: "Idiom" }
+    idiom:   { short: "Idiom", label: "Thành ngữ",          en: "Idiom" },
+    expr:    { short: "Expr",  label: "Cụm cố định",        en: "Fixed expression" }
   };
   const POS_ORDER = Object.keys(POS);
   const FORM_KEYS = [["adj", "Adj", "Tính từ"], ["n", "N", "Danh từ"], ["v", "V", "Động từ"], ["adv", "Adv", "Trạng từ"]];
@@ -695,8 +696,8 @@
           </div>
         </div>
         <div class="sample">
-          <p class="sample-en">${highlightVocab(l.sample.en, lw)}</p>
-          ${l.sample.vi ? `<p class="sample-vi" id="sampleVi" hidden><b>Dịch:</b> ${esc(l.sample.vi)}</p>` : ""}
+          <p class="sample-en">${slots(highlightVocab(l.sample.en, lw))}</p>
+          ${l.sample.vi ? `<p class="sample-vi" id="sampleVi" hidden><b>Dịch:</b> ${slots(esc(l.sample.vi))}</p>` : ""}
         </div>
         <p class="muted small">Các từ được tô màu là từ vựng của buổi này — bấm vào để xem nghĩa.</p>
       </section>` : ""}
@@ -794,6 +795,9 @@
     });
     return out + esc(text.slice(pos));
   }
+
+  // ô trống [..] trong bài mẫu: học viên thay bằng thông tin của mình
+  const slots = (html) => html.replace(/\[([^\]]+)\]/g, '<span class="slot">$1</span>');
 
   // làm nổi các ô trống [..] và ký hiệu S + V trong mẫu câu
   function fmtPattern(s) {

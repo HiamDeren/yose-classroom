@@ -28,6 +28,7 @@
   --c-adj: #c25414;     --c-adj-bg: #fdeadb;
   --c-adv: #7a4fc8;     --c-adv-bg: #efe8fc;
   --c-idiom: #9a7208;   --c-idiom-bg: #fbf1d0;
+  --c-expr: #8a5a44;    --c-expr-bg: #f5e7df;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -39,6 +40,7 @@
     --c-verb: #6fd3a3; --c-verb-bg: #16342a; --c-phrasal: #f39ac6; --c-phrasal-bg: #3b1d2c;
     --c-vphrase: #6fd0d6; --c-vphrase-bg: #153236; --c-adj: #ffab73; --c-adj-bg: #3c2516;
     --c-adv: #c3a6ff; --c-adv-bg: #2b2244; --c-idiom: #f0cd63; --c-idiom-bg: #362d12;
+    --c-expr: #e0b49c; --c-expr-bg: #3a2a22;
   }
 }
 :root[data-theme="dark"] {
@@ -50,6 +52,7 @@
   --c-verb: #6fd3a3; --c-verb-bg: #16342a; --c-phrasal: #f39ac6; --c-phrasal-bg: #3b1d2c;
   --c-vphrase: #6fd0d6; --c-vphrase-bg: #153236; --c-adj: #ffab73; --c-adj-bg: #3c2516;
   --c-adv: #c3a6ff; --c-adv-bg: #2b2244; --c-idiom: #f0cd63; --c-idiom-bg: #362d12;
+    --c-expr: #e0b49c; --c-expr-bg: #3a2a22;
 }
 
 * { box-sizing: border-box; }
@@ -179,6 +182,7 @@ a.tag:hover { border-color: var(--brand); color: var(--brand-ink); }
 .pos-adj { color: var(--c-adj); background: var(--c-adj-bg); }          .dot-adj { background: var(--c-adj); }
 .pos-adv { color: var(--c-adv); background: var(--c-adv-bg); }          .dot-adv { background: var(--c-adv); }
 .pos-idiom { color: var(--c-idiom); background: var(--c-idiom-bg); }    .dot-idiom { background: var(--c-idiom); }
+.pos-expr { color: var(--c-expr); background: var(--c-expr-bg); }       .dot-expr { background: var(--c-expr); }
 
 /* ----- Trang chủ ----- */
 .hero { padding: 56px 0 24px; text-align: center; max-width: 760px; margin: 0 auto; }

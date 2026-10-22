@@ -13,6 +13,7 @@
      "vphrase" – Cụm từ với động từ / collocation (eat a balanced diet…)
      "nphrase" – Cụm danh từ (local market, sense of freedom…)
      "idiom"   – Thành ngữ (recharge your batteries…)
+     "expr"    – Cụm cố định (a range of, within easy walking distance…)
 
    Dạng từ (forms): ghi null nếu không có dạng thông dụng.
    Các trường không bắt buộc: ipa, formsOf, forms, note, ex, exVi,

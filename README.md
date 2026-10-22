@@ -10,7 +10,7 @@ Trang tĩnh thuần HTML/CSS/JS, **không cần build** — đẩy lên GitHub l
 
 - **Tìm từ nhanh** ở mọi trang: nhấn `/` hoặc `Ctrl/⌘ + K`. Gõ có dấu hay không dấu đều được (`tiet kiem` → *time-saving*), tìm theo từ tiếng Anh, nghĩa tiếng Việt hoặc dạng từ (`health` → *healthy lifestyle*).
 - **Từ điển** (`#/tu-dien`): lọc theo **buổi**, **chủ đề**, **nhóm từ**, **loại từ**; sắp xếp A→Z / Z→A / theo buổi; nhóm theo loại từ.
-- **Loại từ** có màu riêng: Danh từ, Cụm danh từ, Động từ, Cụm động từ (phrasal verb), Cụm từ với động từ, Tính từ, Trạng từ, Thành ngữ.
+- **Loại từ** có màu riêng: Danh từ, Cụm danh từ, Động từ, Cụm động từ (phrasal verb), Cụm từ với động từ, Tính từ, Trạng từ, Thành ngữ, Cụm cố định.
 - **Dạng từ** (Adj / N / V / Adv) cho mỗi từ.
 - **Trang buổi học** (`#/buoi/2`): từ vựng (xem theo loại từ hoặc theo nhóm chủ đề), cấu trúc câu, ngữ pháp, bài nói mẫu (bấm vào từ được tô màu để xem nghĩa, ẩn/hiện bản dịch), khung tự luyện, lưu ý.
 - **Nghe phát âm** từ, câu ví dụ và cả bài mẫu (giọng Anh-Anh của trình duyệt).
@@ -22,7 +22,7 @@ Mỗi buổi là một file trong thư mục `data/`:
 
 ```
 data/
-  lesson-01.js   ← Buổi 1 (đang để "Sắp cập nhật")
+  lesson-01.js   ← Hometown
   lesson-02.js   ← Healthy and Unhealthy Habits
   lesson-03.js   ← Describing a Trip
   _template.js   ← mẫu để tạo buổi mới
@@ -37,7 +37,6 @@ data/
    ```
 3. Commit và push — Vercel tự deploy lại.
 
-**Bổ sung Buổi 1:** mở `data/lesson-01.js`, điền nội dung theo `_template.js` và xóa dòng `comingSoon: true`.
 
 Các buổi có cùng `topic` sẽ được gom chung khi lọc theo chủ đề.
 
