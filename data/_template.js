@@ -1,0 +1,58 @@
+/* MẪU THÊM BUỔI HỌC MỚI
+   1. Sao chép file này thành data/lesson-XX.js (XX = số buổi, vd: lesson-04.js)
+   2. Điền nội dung bên dưới
+   3. Thêm 1 dòng <script src="data/lesson-XX.js"></script> vào index.html
+      (đặt cạnh các dòng lesson-02.js, lesson-03.js)
+
+   Loại từ (pos) dùng một trong các giá trị:
+     "noun"    – Danh từ (N)
+     "verb"    – Động từ (V)
+     "adj"     – Tính từ (Adj)
+     "adv"     – Trạng từ (Adv)
+     "phrasal" – Cụm động từ / phrasal verb (get around, stay up…)
+     "vphrase" – Cụm từ với động từ / collocation (eat a balanced diet…)
+     "nphrase" – Cụm danh từ (local market, sense of freedom…)
+     "idiom"   – Thành ngữ (recharge your batteries…)
+
+   Dạng từ (forms): ghi null nếu không có dạng thông dụng.
+   Các trường không bắt buộc: ipa, formsOf, forms, note, ex, exVi,
+   structures, grammar, sample, practice, notes. */
+
+YOSE.addLesson({
+  id: 4,
+  title: "Lesson title in English",
+  titleVi: "Tên bài bằng tiếng Việt",
+  topic: "Tên chủ đề",            // vd: "Du lịch", "Công việc"… (cùng chủ đề sẽ gom chung khi lọc)
+  summary: "Mô tả ngắn về buổi học.",
+  groups: [
+    { id: "group1", name: "Nhóm từ 1" },
+    { id: "group2", name: "Nhóm từ 2" }
+  ],
+
+  vocab: [
+    { w: "word", ipa: "/wɜːd/", pos: "noun", group: "group1", vi: "nghĩa tiếng Việt",
+      forms: { adj: null, n: "word", v: "word", adv: null },
+      ex: "Example sentence.", exVi: "Câu ví dụ." }
+  ],
+
+  structuresIntro: "",             // không bắt buộc
+  structures: [
+    { en: "Sentence pattern…", usage: "Cách dùng / nghĩa", ex: "Example.", exVi: "Ví dụ." }
+  ],
+
+  grammar: [
+    { title: "Tên điểm ngữ pháp", subtitle: "", formula: "Công thức", note: "Ghi chú",
+      examples: [{ en: "Example.", vi: "Ví dụ." }] }
+  ],
+  grammarTip: "",
+
+  sample: { en: "Sample answer in English.", vi: "Bản dịch." },
+
+  practice: [
+    { label: "Ý 1", text: "I ___ because ___." }
+  ],
+
+  notes: [
+    "Lưu ý dùng từ…"
+  ]
+});

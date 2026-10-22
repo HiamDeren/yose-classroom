@@ -1,0 +1,146 @@
+/* Buổi 3 — Describing a Trip */
+YOSE.addLesson({
+  id: 3,
+  title: "Describing a Trip",
+  titleVi: "Miêu tả một chuyến đi",
+  topic: "Du lịch",
+  summary:
+    "Từ vựng và mẫu diễn đạt cho chủ đề Describe a trip. Học từ theo nhóm, chú ý cách phát âm và dạng từ, rồi thay địa điểm, thời gian và trải nghiệm bằng thông tin của bạn.",
+  groups: [
+    { id: "transport", name: "Phương tiện & hành trình" },
+    { id: "food", name: "Ẩm thực & nét địa phương" },
+    { id: "scenery", name: "Miêu tả cảnh sắc" },
+    { id: "feelings", name: "Hoạt động & cảm xúc" }
+  ],
+
+  vocab: [
+    // ---- Phương tiện & hành trình ----
+    { w: "mode of transport", ipa: "/ˌməʊd əv ˈtrænspɔːt/", pos: "nphrase", group: "transport", vi: "phương tiện di chuyển",
+      forms: { adj: "transportable (nghĩa khác: có thể vận chuyển)", n: "transport", v: "transport", adv: null },
+      ex: "What is your favourite mode of transport for a short trip?", exVi: "Phương tiện bạn thích nhất cho chuyến đi ngắn là gì?" },
+    { w: "minivan", ipa: "/ˈmɪn.i.væn/", pos: "noun", group: "transport", vi: "xe tải nhỏ chở khách; xe minivan",
+      forms: { adj: null, n: "minivan", v: null, adv: null },
+      ex: "We travelled to the beach in a minivan.", exVi: "Chúng tôi đi đến bãi biển bằng xe minivan." },
+    { w: "expressway", ipa: "/ɪkˈspres.weɪ/", pos: "noun", group: "transport", vi: "đường cao tốc",
+      forms: { adj: null, n: "expressway", v: null, adv: null },
+      ex: "The new expressway reduced our travel time.", exVi: "Đường cao tốc mới rút ngắn thời gian di chuyển của chúng tôi." },
+    { w: "scenic", ipa: "/ˈsiː.nɪk/", pos: "adj", group: "transport", vi: "có phong cảnh đẹp",
+      forms: { adj: "scenic", n: "scenery", v: null, adv: "scenically (ít dùng)" },
+      ex: "We enjoyed scenic views along the way.", exVi: "Chúng tôi thưởng ngoạn cảnh đẹp dọc đường." },
+    { w: "time-saving", ipa: "/ˈtaɪmˌseɪ.vɪŋ/", pos: "adj", group: "transport", vi: "tiết kiệm thời gian",
+      forms: { adj: "time-saving", n: "time saving (cụm danh từ)", v: "save time", adv: null },
+      ex: "Taking the expressway is a time-saving choice.", exVi: "Đi đường cao tốc là một lựa chọn tiết kiệm thời gian." },
+    { w: "time-consuming", ipa: "/ˈtaɪm.kənˌsjuː.mɪŋ/", pos: "adj", group: "transport", vi: "tốn thời gian",
+      forms: { adj: "time-consuming", n: "consumption", v: "consume", adv: null },
+      ex: "The old coastal road can be time-consuming.", exVi: "Con đường ven biển cũ có thể mất nhiều thời gian." },
+    { w: "get around", ipa: "/ɡet əˈraʊnd/", pos: "phrasal", group: "transport", vi: "đi lại, di chuyển quanh một nơi",
+      forms: { adj: null, n: "transportation (phương tiện/vận chuyển)", v: "get around", adv: null },
+      ex: "We rented bicycles to get around the town.", exVi: "Chúng tôi thuê xe đạp để đi lại quanh thị trấn." },
+    { w: "sense of freedom", ipa: "/ˌsens əv ˈfriː.dəm/", pos: "nphrase", group: "transport", vi: "cảm giác tự do",
+      forms: { adj: "free", n: "freedom", v: "free (giải phóng)", adv: "freely" },
+      ex: "Riding along the coast gave us a sense of freedom.", exVi: "Chạy xe dọc bờ biển đem lại cho chúng tôi cảm giác tự do." },
+
+    // ---- Ẩm thực & nét địa phương ----
+    { w: "speciality", ipa: "/ˌspeʃ.iˈæl.ə.ti/", pos: "noun", group: "food", vi: "đặc sản; món đặc trưng",
+      forms: { adj: "special", n: "speciality", v: "specialise (BrE) / specialize (AmE)", adv: "specially" },
+      ex: "Quang noodles are a local speciality in Da Nang.", exVi: "Mì Quảng là đặc sản địa phương ở Đà Nẵng." },
+    { w: "freshly caught", ipa: "/ˌfreʃ.li ˈkɔːt/", pos: "adj", group: "food", vi: "vừa mới đánh bắt",
+      forms: { adj: "freshly caught (phân từ)", n: "catch (mẻ/lượng đánh bắt)", v: "catch – caught – caught", adv: "freshly" },
+      ex: "We ate freshly caught seafood at the homestay.", exVi: "Chúng tôi ăn hải sản vừa mới đánh bắt tại homestay." },
+    { w: "regional", ipa: "/ˈriː.dʒən.əl/", pos: "adj", group: "food", vi: "thuộc vùng miền",
+      forms: { adj: "regional", n: "region", v: null, adv: "regionally" },
+      ex: "We tried regional noodle soups during the trip.", exVi: "Chúng tôi thử các món mì nước đặc trưng vùng miền trong chuyến đi." },
+    { w: "authentic", ipa: "/ɔːˈθen.tɪk/", pos: "adj", group: "food", vi: "đích thực; đúng chất",
+      forms: { adj: "authentic", n: "authenticity", v: "authenticate (xác thực)", adv: "authentically" },
+      ex: "The small restaurant served authentic local food.", exVi: "Quán nhỏ phục vụ món ăn địa phương đúng vị." },
+    { w: "local market", ipa: "/ˌləʊ.kəl ˈmɑː.kɪt/", pos: "nphrase", group: "food", vi: "chợ địa phương",
+      forms: { adj: "local", n: "locality", v: "market (buôn bán)", adv: "locally" },
+      ex: "We bought fresh ingredients at the local market.", exVi: "Chúng tôi mua nguyên liệu tươi ở chợ địa phương." },
+    { w: "local flavour", ipa: "/ˌləʊ.kəl ˈfleɪ.vər/", pos: "nphrase", group: "food", vi: "hương vị địa phương",
+      forms: { adj: "flavourful", n: "flavour", v: "flavour", adv: "flavourfully (hiếm)" },
+      note: "local: adj · locally: adv",
+      ex: "Street food is a wonderful way to experience local flavour.", exVi: "Ẩm thực đường phố là cách tuyệt vời để cảm nhận hương vị địa phương." },
+    { w: "cozy", ipa: "/ˈkəʊ.zi/", pos: "adj", group: "food", vi: "ấm cúng",
+      forms: { adj: "cozy", n: "coziness", v: null, adv: "cozily (ít dùng)" },
+      note: "Anh-Anh thường viết “cosy”.",
+      ex: "We had a cozy seafood dinner at our homestay.", exVi: "Chúng tôi có bữa tối hải sản ấm cúng tại homestay." },
+
+    // ---- Miêu tả cảnh sắc ----
+    { w: "crystal-clear", ipa: "/ˌkrɪs.təl ˈklɪər/", pos: "adj", group: "scenery", vi: "trong vắt",
+      forms: { adj: "crystal-clear", n: "clarity (liên quan)", v: null, adv: null },
+      ex: "The bay had crystal-clear water.", exVi: "Vịnh có làn nước trong vắt." },
+    { w: "breathtaking", ipa: "/ˈbreθˌteɪ.kɪŋ/", pos: "adj", group: "scenery", vi: "ngoạn mục; đẹp đến nghẹt thở",
+      forms: { adj: "breathtaking", n: "breath", v: "take someone’s breath away", adv: "breathtakingly" },
+      ex: "We watched a breathtaking sunset over the sea.", exVi: "Chúng tôi ngắm hoàng hôn ngoạn mục trên biển." },
+    { w: "crimson", ipa: "/ˈkrɪm.zən/", pos: "adj", group: "scenery", vi: "đỏ thẫm; đỏ crimson",
+      forms: { adj: "crimson", n: "crimson (màu đỏ thẫm)", v: null, adv: null },
+      ex: "The sky turned crimson at sunset.", exVi: "Bầu trời chuyển đỏ thẫm lúc hoàng hôn." },
+    { w: "coast", ipa: "/kəʊst/", pos: "noun", group: "scenery", vi: "bờ biển; vùng ven biển",
+      forms: { adj: "coastal", n: "coast", v: "coast (trôi/di chuyển nhẹ nhàng)", adv: null },
+      ex: "We stood on the coast and looked at the mountains.", exVi: "Chúng tôi đứng bên bờ biển và ngắm núi." },
+    { w: "shore", ipa: "/ʃɔːr/", pos: "noun", group: "scenery", vi: "bờ biển; bờ hồ",
+      forms: { adj: "shore-side (ít dùng)", n: "shore", v: null, adv: null },
+      ex: "We took a peaceful walk along the shore.", exVi: "Chúng tôi đi dạo yên bình dọc bờ biển." },
+    { w: "scenery", ipa: "/ˈsiː.nər.i/", pos: "noun", group: "scenery", vi: "phong cảnh",
+      forms: { adj: "scenic", n: "scenery (không đếm được)", v: null, adv: null },
+      ex: "The mountain scenery was beautiful.", exVi: "Phong cảnh núi non rất đẹp." },
+
+    // ---- Hoạt động & cảm xúc ----
+    { w: "trendy", ipa: "/ˈtren.di/", pos: "adj", group: "feelings", vi: "hợp mốt; thời thượng",
+      forms: { adj: "trendy", n: "trend", v: "trend", adv: "trendily (ít dùng)" },
+      ex: "My friends wore trendy outfits for the photos.", exVi: "Bạn bè tôi mặc trang phục hợp mốt để chụp ảnh." },
+    { w: "peaceful", ipa: "/ˈpiːs.fəl/", pos: "adj", group: "feelings", vi: "yên bình",
+      forms: { adj: "peaceful", n: "peace", v: null, adv: "peacefully" },
+      ex: "We had a peaceful walk after dinner.", exVi: "Chúng tôi đi dạo yên bình sau bữa tối." },
+    { w: "recharge your batteries", ipa: "/ˌriːˈtʃɑːdʒ jɔː ˈbæt.ər.iz/", pos: "idiom", group: "feelings", vi: "nạp lại năng lượng, nghỉ ngơi để hồi sức",
+      forms: { adj: "rechargeable", n: "recharge", v: "recharge", adv: null },
+      ex: "A quiet weekend by the sea helps me recharge my batteries.", exVi: "Một cuối tuần yên tĩnh bên biển giúp tôi nạp lại năng lượng." },
+    { w: "deepen a friendship", ipa: "/ˌdiː.pən ə ˈfrend.ʃɪp/", pos: "vphrase", group: "feelings", vi: "thắt chặt tình bạn",
+      forms: { adj: "deep", n: "depth / deepening", v: "deepen", adv: "deeply" },
+      ex: "Travelling together helped us deepen our friendship.", exVi: "Đi du lịch cùng nhau giúp chúng tôi thắt chặt tình bạn." },
+    { w: "memorable", ipa: "/ˈmem.ər.ə.bəl/", pos: "adj", group: "feelings", vi: "đáng nhớ",
+      forms: { adj: "memorable", n: "memory", v: "memorize / memorise", adv: "memorably" },
+      ex: "The sunset was the most memorable part of the trip.", exVi: "Hoàng hôn là phần đáng nhớ nhất của chuyến đi." },
+    { w: "getaway", ipa: "/ˈɡet.ə.weɪ/", pos: "noun", group: "feelings", vi: "chuyến đi nghỉ ngắn ngày",
+      forms: { adj: null, n: "getaway", v: "get away", adv: null },
+      ex: "We planned a short getaway with close friends.", exVi: "Chúng tôi lên kế hoạch cho chuyến nghỉ ngắn ngày với bạn thân." }
+  ],
+
+  structuresIntro: "Dùng các câu khung dưới đây để lần lượt nói về địa điểm, thời gian, phương tiện, trải nghiệm và cảm nhận.",
+  structures: [
+    { en: "Whenever someone asks about my most memorable trip, the first place that comes to mind is…",
+      usage: "Mỗi khi ai hỏi về chuyến đi đáng nhớ nhất, nơi đầu tiên tôi nghĩ đến là…" },
+    { en: "It took place [time], when my friends and I decided to head to [place].",
+      usage: "Chuyến đi diễn ra vào [thời gian], khi bạn bè và tôi quyết định đến [địa điểm]." },
+    { en: "To get there, we travelled by [mode of transport] via the [route], which took about [duration].",
+      usage: "Để đến đó, chúng tôi đi bằng [phương tiện] qua [tuyến đường], mất khoảng [thời lượng]." },
+    { en: "The best part of the journey was [scenic view / activity], which gave us…",
+      usage: "Phần tuyệt nhất của hành trình là [cảnh đẹp / hoạt động], điều đó đem lại cho chúng tôi…" },
+    { en: "Instead of [option], we chose to [activity] because…",
+      usage: "Thay vì [lựa chọn], chúng tôi chọn [hoạt động] vì…" },
+    { en: "Looking back, the trip was truly [adjective] because…",
+      usage: "Nhìn lại, chuyến đi thực sự [tính từ] vì…" }
+  ],
+
+  sample: {
+    en: "Whenever someone asks about my most memorable trip, the first place that comes to mind is Nha Trang. It took place last summer, when my close friends and I decided to head there for a short getaway. We travelled by minivan via the expressway, which took around three hours. We enjoyed scenic views along the way, and the journey gave us a real sense of freedom. Instead of going to fancy restaurants, we bought fresh ingredients at the local market and had a cozy seafood dinner at our homestay. The freshly caught seafood and regional dishes helped us experience authentic local flavours. The next day, we admired the crystal-clear water and watched a breathtaking crimson sunset by the shore. At night, we took a peaceful walk, chatted, and shared stories. The trip helped us recharge our batteries and deepen our friendship, so it was both relaxing and unforgettable.",
+    vi: "Mỗi khi ai hỏi về chuyến đi đáng nhớ nhất, nơi đầu tiên tôi nghĩ đến là Nha Trang. Chuyến đi diễn ra vào mùa hè năm ngoái, khi nhóm bạn thân và tôi quyết định đến đó nghỉ ngắn ngày. Chúng tôi đi minivan qua đường cao tốc, mất khoảng ba tiếng. Chúng tôi ngắm cảnh đẹp dọc đường và hành trình đem lại cảm giác tự do thực sự. Thay vì đến nhà hàng sang trọng, chúng tôi mua nguyên liệu tươi ở chợ địa phương rồi tổ chức bữa tối hải sản ấm cúng tại homestay. Hải sản vừa mới đánh bắt và các món ăn vùng miền giúp chúng tôi trải nghiệm hương vị địa phương đích thực. Ngày hôm sau, chúng tôi chiêm ngưỡng làn nước trong vắt và ngắm hoàng hôn đỏ thẫm ngoạn mục bên bờ biển. Buổi tối, chúng tôi đi dạo yên bình, trò chuyện và chia sẻ những câu chuyện. Chuyến đi giúp chúng tôi nạp lại năng lượng và thắt chặt tình bạn, vì vậy đó vừa là chuyến đi thư giãn vừa đáng nhớ."
+  },
+
+  practice: [
+    { label: "Where and when", text: "I went to ___ with ___ in ___." },
+    { label: "Transport and journey", text: "We travelled by ___ via ___. It took ___." },
+    { label: "Food and sights", text: "We tried ___ and saw ___." },
+    { label: "Activities and feelings", text: "We ___, which helped me/us ___." },
+    { label: "Memory and reason", text: "The most memorable part was ___ because ___." }
+  ],
+
+  notes: [
+    "“Speciality” là cách viết Anh-Anh; “specialty” phổ biến trong Anh-Mỹ.",
+    "“Freshly caught seafood” nghĩa là hải sản vừa được đánh bắt; “freshly” bổ nghĩa cho “caught”.",
+    "“Scenery” là danh từ không đếm được; dùng “scenic” trước danh từ, như “scenic views”.",
+    "“Time-saving” diễn tả điều giúp tiết kiệm thời gian; “time-consuming” diễn tả điều tốn thời gian.",
+    "Trong “recharge your batteries”, “batteries” được dùng theo nghĩa bóng là năng lượng và sức lực.",
+    "Một số từ không có đủ dạng tính từ, danh từ, động từ và trạng từ thông dụng; tài liệu ghi rõ khi dạng từ không áp dụng hoặc hiếm dùng."
+  ]
+});
