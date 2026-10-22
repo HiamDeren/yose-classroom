@@ -1,4 +1,6 @@
-# Yose Home · Kho kiến thức tiếng Anh
+# Yose Homework
+
+Kho kiến thức & bài tập tiếng Anh của trung tâm **Yose Home**.
 
 Website tổng hợp kiến thức của khóa học tại trung tâm **Yose Home**: từ vựng (kèm dạng từ, phiên âm, ví dụ), cấu trúc câu, ngữ pháp, bài nói mẫu và khung tự luyện theo từng buổi.
 
