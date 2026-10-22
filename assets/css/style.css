@@ -376,6 +376,22 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
 .formula { padding: 12px 14px; border-radius: 10px; background: var(--brand-soft); color: var(--brand-ink); font-weight: 700; }
 .g-examples { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 10px; }
 .g-examples li { border-left: 3px solid var(--line-2); padding-left: 12px; }
+.grammar-wide { grid-column: 1 / -1; }
+.acronym { display: flex; gap: 6px; flex-wrap: wrap; }
+.acronym span {
+  width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 20px;
+}
+.g-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-top: 4px; }
+.g-item { display: flex; gap: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); scroll-margin-top: 140px; }
+.g-item.flash, .grammar.flash { animation: flash 2s ease-out; }
+.g-word { flex: none; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g-letter { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--accent); color: var(--surface); font-weight: 800; font-size: 18px; }
+.g-word b { font-size: 15px; color: var(--accent); }
+.g-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.g-vi { color: var(--ink); }
+.g-notes { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; color: var(--ink-2); }
+.g-notes li::marker { color: var(--accent); }
 .tip { margin-top: 16px; padding: 14px 18px; border-radius: 12px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
 .tip b { color: var(--accent); display: block; margin-bottom: 2px; }
 
@@ -429,6 +445,8 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
   .stat { min-width: 0; flex: 1 1 40%; }
   .word-grid { grid-template-columns: 1fr; }
   .grammar-grid { grid-template-columns: 1fr; }
+  .g-items { grid-template-columns: 1fr; }
+  .g-word { width: 48px; }
   .frow { flex-direction: column; gap: 6px; }
   .flabel { width: auto; padding-top: 0; }
   .chips { flex-wrap: nowrap; overflow-x: auto; width: 100%; scrollbar-width: none; padding-bottom: 2px; }

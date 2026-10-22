@@ -67,6 +67,7 @@
   const live = lessons.filter((l) => !l.comingSoon);
   const words = [];
   const structures = [];
+  const grammarIdx = [];
 
   live.forEach((l) => {
     const gmap = Object.fromEntries((l.groups || []).map((g) => [g.id, g.name]));
@@ -90,6 +91,15 @@
         _t: norm([s.en, s.usage, s.ex, s.exVi].join(" "))
       }));
     });
+    (l.grammar || []).forEach((g, gi) => {
+      const gid = "b" + l.id + "-g" + gi;
+      grammarIdx.push({ id: gid, lesson: l, title: g.title, sub: g.subtitle || g.formula || "",
+        _t: norm([g.title, g.subtitle, g.formula, g.note, ...(g.examples || []).map((x) => x.en)].join(" ")) });
+      (g.items || []).forEach((it, ii) => {
+        grammarIdx.push({ id: gid + "-" + ii, lesson: l, title: it.word + " — " + it.vi, sub: g.title, word: norm(it.word),
+          _t: norm([it.word, it.vi, it.use, it.en, it.exVi].join(" ")) });
+      });
+    });
   });
 
   const topics = [...new Set(live.map((l) => l.topic).filter(Boolean))];
@@ -97,6 +107,9 @@
   const countBy = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
 
   /* ---------- Tìm kiếm ---------- */
+  // khớp ở đầu một từ — tránh "yet" khớp nhầm "tuyệt" (không dấu: "tuyet")
+  const hasWord = (text, t) => (" " + text).replace(/[^a-z0-9' ]/g, " ").includes(" " + t);
+
   function scoreWord(w, q) {
     if (!q) return 1;
     if (w._w === q) return 1000;
@@ -104,13 +117,13 @@
     if ((" " + w._w).includes(" " + q) || w._w.includes("/" + q)) return 600;
     if (w._w.includes(q)) return 400;
     if (w._forms.includes(q)) return 300;
-    if (w._vi.includes(q)) return 250;
-    if (w._ex.includes(q)) return 80;
-    if (w._meta.includes(q)) return 60;
+    if (hasWord(w._vi, q)) return 250;
+    if (hasWord(w._ex, q)) return 80;
+    if (hasWord(w._meta, q)) return 60;
     const toks = q.split(/\s+/).filter(Boolean);
     if (toks.length > 1) {
       const all = [w._w, w._forms, w._vi, w._ex, w._meta].join(" ");
-      if (toks.every((t) => all.includes(t))) return 40;
+      if (toks.every((t) => hasWord(all, t))) return 40;
     }
     return 0;
   }
@@ -127,7 +140,17 @@
     const nq = norm(q).trim();
     if (!nq) return [];
     const toks = nq.split(/\s+/);
-    return structures.filter((s) => toks.every((t) => s._t.includes(t)));
+    return structures.filter((s) => toks.every((t) => hasWord(s._t, t)));
+  }
+
+  function searchGrammar(q) {
+    const nq = norm(q).trim();
+    if (!nq) return [];
+    const toks = nq.split(/\s+/);
+    // khớp đúng từ (vd. "so", "or") được ưu tiên lên đầu
+    return grammarIdx
+      .filter((g) => g.word === nq || toks.every((t) => hasWord(g._t, t)))
+      .sort((a, b) => (b.word === nq) - (a.word === nq));
   }
 
   /* ---------- Phát âm ---------- */
@@ -239,11 +262,20 @@
     }
     const ws = searchWords(q).slice(0, 8);
     const ss = searchStructures(q).slice(0, 4);
+    const gs = searchGrammar(q).slice(0, 4);
     const ls = live.filter((l) => norm([l.title, l.titleVi, l.topic, "buoi " + l.id].join(" ")).includes(nq));
-    if (!ws.length && !ss.length && !ls.length) {
+    if (!ws.length && !ss.length && !gs.length && !ls.length) {
       return `<div class="qr-empty">Không tìm thấy “${esc(q)}”.<br><small>Thử gõ không dấu, từ ngắn hơn, hoặc nghĩa tiếng Việt.</small></div>`;
     }
     let html = "";
+    const grammarHTML = gs.length ? `<div class="qr-section"><div class="qr-label">Ngữ pháp</div>${gs.map((g) => `
+        <a class="qr-item" href="#/buoi/${g.lesson.id}?g=${esc(g.id)}">
+          <span class="qr-main"><b>${hl(g.title, q)}</b><small>${hl(g.sub, q)}</small></span>
+          <span class="qr-side">Buổi ${g.lesson.id}</span>
+        </a>`).join("")}</div>` : "";
+    // gõ đúng một liên từ (so, but…) thì đưa ngữ pháp lên đầu
+    const grammarFirst = gs[0] && gs[0].word === nq;
+    if (grammarFirst) html += grammarHTML;
     if (ws.length) {
       html += `<div class="qr-section"><div class="qr-label">Từ vựng</div>${ws.map((w) => `
         <a class="qr-item" href="#/buoi/${w.lesson.id}?w=${esc(w.id)}">
@@ -261,6 +293,7 @@
           <span class="qr-side">Buổi ${s.lesson.id}</span>
         </a>`).join("")}</div>`;
     }
+    if (!grammarFirst) html += grammarHTML;
     if (ls.length) {
       html += `<div class="qr-section"><div class="qr-label">Buổi học</div>${ls.map((l) => `
         <a class="qr-item" href="#/buoi/${l.id}"><span class="qr-num">${l.id}</span><span class="qr-main"><b>${hl(l.title, q)}</b><small>${hl(l.titleVi, q)} · ${hl(l.topic, q)}</small></span></a>`).join("")}</div>`;
@@ -313,6 +346,7 @@
   function closePalette() {
     palette.hidden = true;
     document.body.classList.remove("no-scroll");
+    if (document.activeElement === pInput) pInput.blur();
   }
   $("#openSearch").addEventListener("click", () => openPalette());
   palette.addEventListener("click", (e) => { if (e.target.closest("[data-close]")) closePalette(); });
@@ -674,15 +708,26 @@
 
       ${(l.grammar || []).length ? `<section class="lsec" id="sec-grammar">
         <div class="lsec-head"><h2>Ngữ pháp</h2></div>
-        <div class="grammar-grid">${l.grammar.map((g) => `
-          <article class="grammar">
+        <div class="grammar-grid">${l.grammar.map((g, gi) => `
+          <article class="grammar ${g.items ? "grammar-wide" : ""}" id="b${l.id}-g${gi}">
             <h3>${esc(g.title)}</h3>
             ${g.subtitle ? `<p class="muted">${esc(g.subtitle)}</p>` : ""}
-            <div class="formula">${esc(g.formula)}</div>
+            ${g.acronym ? `<div class="acronym">${[...g.acronym].map((c) => `<span>${esc(c)}</span>`).join("")}</div>` : ""}
+            ${g.formula ? `<div class="formula">${esc(g.formula)}</div>` : ""}
             ${g.note ? `<p class="small">${esc(g.note)}</p>` : ""}
-            <ul class="g-examples">${(g.examples || []).map((x) => `
+            ${g.items ? `<div class="g-items">${g.items.map((it, ii) => `
+              <div class="g-item" id="b${l.id}-g${gi}-${ii}">
+                <div class="g-word"><span class="g-letter">${esc(it.word[0].toUpperCase())}</span><b>${esc(it.word)}</b></div>
+                <div class="g-body">
+                  <p><b class="g-vi">${esc(it.vi)}</b>${it.use ? ` <span class="muted">— ${esc(it.use)}</span>` : ""}</p>
+                  <p class="ex-en">${esc(it.en)} ${speakBtn(it.en, "Nghe câu")}</p>
+                  ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
+                </div>
+              </div>`).join("")}</div>` : ""}
+            ${(g.examples || []).length ? `<ul class="g-examples">${g.examples.map((x) => `
               <li><p class="ex-en">${esc(x.en)} ${speakBtn(x.en, "Nghe câu")}</p><p class="ex-vi">${esc(x.vi)}</p></li>`).join("")}
-            </ul>
+            </ul>` : ""}
+            ${(g.notes || []).length ? `<ul class="g-notes">${g.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
           </article>`).join("")}
         </div>
         ${l.grammarTip ? `<div class="tip"><b>Nhớ nhanh</b><p>${esc(l.grammarTip)}</p></div>` : ""}
@@ -739,8 +784,11 @@
     // nhảy tới từ / mục được chỉ định trong URL
     const target = params.get("w");
     const sec = params.get("s");
+    const gram = params.get("g");
     if (target) {
       requestAnimationFrame(() => focusWord(target));
+    } else if (gram && document.getElementById(gram)) {
+      requestAnimationFrame(() => flash(document.getElementById(gram)));
     } else if (sec && document.getElementById("sec-" + sec)) {
       requestAnimationFrame(() => document.getElementById("sec-" + sec).scrollIntoView({ block: "start" }));
     } else window.scrollTo(0, 0);
@@ -753,7 +801,10 @@
       const f = $("#lessonFilter");
       if (f && f.value) { f.value = ""; f.dispatchEvent(new Event("input")); el = document.getElementById("w-" + id); }
     }
-    if (!el) return;
+    if (el) flash(el);
+  }
+
+  function flash(el) {
     el.scrollIntoView({ block: "center", behavior: "smooth" });
     el.classList.remove("flash");
     void el.offsetWidth;

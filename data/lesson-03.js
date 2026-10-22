@@ -122,6 +122,38 @@ YOSE.addLesson({
       usage: "Nhìn lại, chuyến đi thực sự [tính từ] vì…" }
   ],
 
+  grammar: [
+    {
+      title: "Liên từ kết hợp FANBOYS",
+      subtitle: "For · And · Nor · But · Or · Yet · So — nối hai từ, cụm từ hoặc hai mệnh đề ngang hàng nhau",
+      acronym: "FANBOYS",
+      formula: "Mệnh đề 1 + dấu phẩy (,) + FANBOYS + mệnh đề 2",
+      items: [
+        { word: "for", vi: "vì, bởi vì", use: "nêu lý do (trang trọng, hay gặp trong văn viết)",
+          en: "We left early, for we wanted to avoid the traffic.", exVi: "Chúng tôi đi sớm vì muốn tránh kẹt xe." },
+        { word: "and", vi: "và", use: "thêm ý, nối hai hành động/đặc điểm",
+          en: "We travelled by minivan, and the journey took about three hours.", exVi: "Chúng tôi đi bằng xe minivan, và hành trình mất khoảng ba tiếng." },
+        { word: "nor", vi: "cũng không", use: "nối hai ý phủ định; sau nor đảo trợ động từ lên trước chủ ngữ",
+          en: "We didn't go to fancy restaurants, nor did we stay in a big hotel.", exVi: "Chúng tôi không đến nhà hàng sang trọng, cũng không ở khách sạn lớn." },
+        { word: "but", vi: "nhưng", use: "nêu ý đối lập",
+          en: "The coastal road was time-consuming, but the views were breathtaking.", exVi: "Con đường ven biển tốn thời gian, nhưng cảnh thì đẹp ngoạn mục." },
+        { word: "or", vi: "hoặc, hay là", use: "đưa ra lựa chọn",
+          en: "We could take the expressway, or we could follow the scenic coastal road.", exVi: "Chúng tôi có thể đi cao tốc, hoặc đi theo con đường ven biển nhiều cảnh đẹp." },
+        { word: "yet", vi: "tuy vậy, thế mà", use: "đối lập mang tính bất ngờ",
+          en: "The trip was short, yet it was truly memorable.", exVi: "Chuyến đi ngắn, thế mà lại thực sự đáng nhớ." },
+        { word: "so", vi: "vì vậy, nên", use: "nêu kết quả",
+          en: "The seafood was freshly caught, so it tasted amazing.", exVi: "Hải sản vừa được đánh bắt nên ăn rất ngon." }
+      ],
+      notes: [
+        "Đặt dấu phẩy trước FANBOYS khi nối hai mệnh đề hoàn chỉnh (có chủ ngữ + động từ): “It was raining, but we still went to the beach.”",
+        "Không cần dấu phẩy khi chỉ nối hai từ hoặc cụm từ: “The food was cheap and tasty.”",
+        "“So” đi trước kết quả, “because” đi trước nguyên nhân: “It was hot, so we went swimming.” = “We went swimming because it was hot.”",
+        "Khi nói, dùng “because” tự nhiên hơn “for”; “for” nghe trang trọng."
+      ]
+    }
+  ],
+  grammarTip: "Nhớ FANBOYS = For, And, Nor, But, Or, Yet, So. Dùng chúng để nối các câu ngắn khi kể chuyến đi, giúp bài nói trôi chảy hơn: “We arrived late, but the sunset was still breathtaking, so we stayed on the shore until dark.”",
+
   sample: {
     en: "Whenever someone asks about my most memorable trip, the first place that comes to mind is Nha Trang. It took place last summer, when my close friends and I decided to head there for a short getaway. We travelled by minivan via the expressway, which took around three hours. We enjoyed scenic views along the way, and the journey gave us a real sense of freedom. Instead of going to fancy restaurants, we bought fresh ingredients at the local market and had a cozy seafood dinner at our homestay. The freshly caught seafood and regional dishes helped us experience authentic local flavours. The next day, we admired the crystal-clear water and watched a breathtaking crimson sunset by the shore. At night, we took a peaceful walk, chatted, and shared stories. The trip helped us recharge our batteries and deepen our friendship, so it was both relaxing and unforgettable.",
     vi: "Mỗi khi ai hỏi về chuyến đi đáng nhớ nhất, nơi đầu tiên tôi nghĩ đến là Nha Trang. Chuyến đi diễn ra vào mùa hè năm ngoái, khi nhóm bạn thân và tôi quyết định đến đó nghỉ ngắn ngày. Chúng tôi đi minivan qua đường cao tốc, mất khoảng ba tiếng. Chúng tôi ngắm cảnh đẹp dọc đường và hành trình đem lại cảm giác tự do thực sự. Thay vì đến nhà hàng sang trọng, chúng tôi mua nguyên liệu tươi ở chợ địa phương rồi tổ chức bữa tối hải sản ấm cúng tại homestay. Hải sản vừa mới đánh bắt và các món ăn vùng miền giúp chúng tôi trải nghiệm hương vị địa phương đích thực. Ngày hôm sau, chúng tôi chiêm ngưỡng làn nước trong vắt và ngắm hoàng hôn đỏ thẫm ngoạn mục bên bờ biển. Buổi tối, chúng tôi đi dạo yên bình, trò chuyện và chia sẻ những câu chuyện. Chuyến đi giúp chúng tôi nạp lại năng lượng và thắt chặt tình bạn, vì vậy đó vừa là chuyến đi thư giãn vừa đáng nhớ."
