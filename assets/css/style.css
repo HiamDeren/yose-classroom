@@ -1,5 +1,6 @@
 /* ===== Yose Home ===== */
 :root {
+  color-scheme: light;
   --bg: #faf7f2;
   --surface: #ffffff;
   --surface-2: #f4efe7;
@@ -32,6 +33,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #12151b; --surface: #1a1f27; --surface-2: #222833; --ink: #e9ecf1; --ink-2: #c9d0da; --muted: #9aa5b4;
     --line: #2a313c; --line-2: #37404d; --brand: #f0845d; --brand-ink: #ffab8b; --brand-soft: #3a241b;
     --accent: #5cc4a9; --accent-soft: #17332c; --mark: #6b5513;
@@ -44,6 +46,7 @@
   }
 }
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #12151b; --surface: #1a1f27; --surface-2: #222833; --ink: #e9ecf1; --ink-2: #c9d0da; --muted: #9aa5b4;
   --line: #2a313c; --line-2: #37404d; --brand: #f0845d; --brand-ink: #ffab8b; --brand-soft: #3a241b;
   --accent: #5cc4a9; --accent-soft: #17332c; --mark: #6b5513;
@@ -56,6 +59,16 @@
 }
 
 * { box-sizing: border-box; }
+
+/* thanh cuộn mảnh, theo màu giao diện */
+:root { --scroll-thumb: color-mix(in srgb, var(--muted) 45%, transparent); --scroll-thumb-hover: color-mix(in srgb, var(--muted) 75%, transparent); }
+* { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+*:hover { scrollbar-color: var(--scroll-thumb-hover) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-thumb-hover); }
+::-webkit-scrollbar-corner { background: transparent; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
@@ -285,7 +298,7 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
 .fp-head { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .fp-head h2 { font-size: 16px; font-weight: 700; margin-right: auto; }
 .fp-close, .fp-foot, .fpanel-backdrop, .btn-filter { display: none; }
-.fp-body { overflow: auto; overscroll-behavior: contain; }
+.fp-body { overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
 .fp-sec { padding: 12px 8px; }
 .fp-sec + .fp-sec { border-top: 1px solid var(--line); }
 .fp-sec h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 2px 8px 8px; }
