@@ -25,6 +25,7 @@ data/
   lesson-01.js   ← Hometown
   lesson-02.js   ← Healthy and Unhealthy Habits
   lesson-03.js   ← Describing a Trip
+  lesson-04.js   ← Shopping
   _template.js   ← mẫu để tạo buổi mới
 ```
 

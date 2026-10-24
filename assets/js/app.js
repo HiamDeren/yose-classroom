@@ -30,6 +30,12 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
 
+  // **chữ đậm** trong dữ liệu = từ được nhấn mạnh trên lớp
+  const plain = (s) => String(s ?? "").replace(/\*\*/g, "");
+  const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // khi đang tìm kiếm thì tô sáng từ khóa, còn không thì giữ chữ đậm
+  const fmt = (s, q) => (q && q.trim() ? hl(plain(s), q) : rich(s));
+
   // tô sáng từ khóa, không phân biệt dấu tiếng Việt
   function hl(text, q) {
     text = String(text ?? "");
@@ -67,6 +73,7 @@
   const words = [];
   const structures = [];
   const grammarIdx = [];
+  const phraseIdx = [];
 
   live.forEach((l) => {
     const gmap = Object.fromEntries((l.groups || []).map((g) => [g.id, g.name]));
@@ -80,7 +87,7 @@
         _w: norm(v.w),
         _vi: norm(v.vi),
         _forms: norm(formsText + " " + (v.formsOf || "")),
-        _ex: norm((v.ex || "") + " " + (v.exVi || "") + " " + (v.note || "")),
+        _ex: norm(plain((v.ex || "") + " " + (v.exVi || "") + " " + (v.note || ""))),
         _meta: norm(l.topic + " " + (gmap[v.group] || "") + " " + (POS[v.pos]?.label || ""))
       }));
     });
@@ -101,6 +108,12 @@
       });
     });
   });
+
+  // cụm từ trong các mục "phrases" (vd. Lý do mua sắm) cũng tìm được
+  live.forEach((l) => (l.sections || []).filter((sec) => sec.type === "phrases").forEach((sec) =>
+    sec.items.forEach((it) => it.phrases.forEach((ph) => phraseIdx.push({
+      lesson: l, sec: sec.id, title: plain(ph), sub: it.title + " · " + it.vi, _t: norm(plain(ph))
+    })))));
 
   const lessonById = (id) => lessons.find((l) => String(l.id) === String(id));
   const countBy = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
@@ -163,7 +176,7 @@
   function speak(text, rate) {
     if (!("speechSynthesis" in window)) { toast("Trình duyệt chưa hỗ trợ đọc phát âm"); return; }
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text).replace(/\s*\/\s*/g, ", ").replace(/…|\.\.\.|_+/g, " "));
+    const u = new SpeechSynthesisUtterance(plain(text).replace(/\s*\/\s*/g, ", ").replace(/…|\.\.\.|_+/g, " "));
     u.lang = "en-GB";
     if (voice) u.voice = voice;
     u.rate = rate || 0.9;
@@ -210,7 +223,7 @@
       `<span class="fchip fchip-${k}" title="${l}"><b>${s}</b>${hl(w.forms[k], q)}</span>`).join("")}</div>`;
   }
   const exampleHTML = (w, q) => w.ex
-    ? `<div class="ex"><p class="ex-en">${hl(w.ex, q)} ${speakBtn(w.ex, "Nghe câu ví dụ")}</p>${w.exVi ? `<p class="ex-vi">${hl(w.exVi, q)}</p>` : ""}</div>`
+    ? `<div class="ex"><p class="ex-en">${fmt(w.ex, q)} ${speakBtn(w.ex, "Nghe câu ví dụ")}</p>${w.exVi ? `<p class="ex-vi">${hl(w.exVi, q)}</p>` : ""}</div>`
     : "";
   const lessonLink = (w) =>
     `<a href="#/buoi/${w.lesson.id}?w=${esc(w.id)}" class="tag tag-lesson">Buổi ${w.lesson.id}</a>${w.groupName ? `<span class="muted small">${esc(w.groupName)}</span>` : ""}`;
@@ -305,8 +318,9 @@
     const ws = searchWords(q).slice(0, 8);
     const ss = searchStructures(q).slice(0, 4);
     const gs = searchGrammar(q).slice(0, 4);
+    const ps = phraseIdx.filter((x) => x._t.includes(nq)).slice(0, 4);
     const ls = live.filter((l) => norm([l.title, l.titleVi, l.topic, "buoi " + l.id].join(" ")).includes(nq));
-    if (!ws.length && !ss.length && !gs.length && !ls.length) {
+    if (!ws.length && !ss.length && !gs.length && !ps.length && !ls.length) {
       return `<div class="qr-empty">Không tìm thấy “${esc(q)}”.<br><small>Thử gõ không dấu, từ ngắn hơn, hoặc nghĩa tiếng Việt.</small></div>`;
     }
     let html = "";
@@ -336,6 +350,13 @@
         </a>`).join("")}</div>`;
     }
     if (!grammarFirst) html += grammarHTML;
+    if (ps.length) {
+      html += `<div class="qr-section"><div class="qr-label">Cụm từ theo chủ đề</div>${ps.map((x) => `
+        <a class="qr-item" href="#/buoi/${x.lesson.id}?s=${esc(x.sec)}">
+          <span class="qr-main"><b>${hl(x.title, q)}</b><small>${esc(x.sub)}</small></span>
+          <span class="qr-side">Buổi ${x.lesson.id}</span>
+        </a>`).join("")}</div>`;
+    }
     if (ls.length) {
       html += `<div class="qr-section"><div class="qr-label">Buổi học</div>${ls.map((l) => `
         <a class="qr-item" href="#/buoi/${l.id}"><span class="qr-num">${l.id}</span><span class="qr-main"><b>${hl(l.title, q)}</b><small>${hl(l.titleVi, q)} · ${hl(l.topic, q)}</small></span></a>`).join("")}</div>`;
@@ -423,6 +444,16 @@
 
   // phát âm / chuyển mục — dùng ủy quyền sự kiện
   document.addEventListener("click", (e) => {
+    const all = e.target.closest("[data-speak-all]");
+    if (all) { e.preventDefault(); speakAll(JSON.parse(all.dataset.speakAll)); return; }
+    const vt = e.target.closest("[data-vi-toggle]");
+    if (vt) {
+      const sec = vt.closest(".lsec");
+      const hide = sec.classList.toggle("hide-vi");
+      vt.textContent = hide ? "Hiện bản dịch" : "Ẩn bản dịch";
+      vt.setAttribute("aria-pressed", String(!hide));
+      return;
+    }
     const sp = e.target.closest("[data-speak]");
     if (sp) { e.preventDefault(); speak(sp.dataset.speak, sp.dataset.rate ? +sp.dataset.rate : undefined); return; }
     const jump = e.target.closest("[data-jump]");
@@ -517,7 +548,7 @@
         <span><b>${n("vocab")}</b> từ</span>
         <span><b>${n("structures")}</b> cấu trúc</span>
         ${n("grammar") ? `<span><b>${n("grammar")}</b> ngữ pháp</span>` : ""}
-        ${l.sample ? `<span>Bài nói mẫu</span>` : ""}
+        ${l.sample || l.samples ? `<span>Bài nói mẫu</span>` : ""}
       </div>
       ${(l.groups || []).length ? `<div class="lc-groups">${l.groups.map((g) => `<span>${esc(g.name)}</span>`).join("")}</div>` : ""}
       <span class="lc-go">Vào học ${ICON.arrow}</span>
@@ -738,12 +769,14 @@
 
     document.title = `Buổi ${l.id}: ${l.title} · Yose Home`;
     const lw = words.filter((w) => w.lesson === l);
+    const samples = l.samples || (l.sample ? [l.sample] : []);
     const sections = [
       ["sec-vocab", "Từ vựng", lw.length],
+      ...(l.sections || []).map((x) => ["sec-" + x.id, x.nav || x.title, 1]),
       ["sec-structures", "Cấu trúc câu", (l.structures || []).length],
       ["sec-grammar", "Ngữ pháp", (l.grammar || []).length],
       ["sec-exercises", "Luyện tập", l.exercises ? l.exercises.items.length : 0],
-      ["sec-sample", "Bài nói mẫu", l.sample ? 1 : 0],
+      ["sec-sample", "Bài nói mẫu", samples.length],
       ["sec-practice", "Tự luyện", (l.practice || []).length],
       ["sec-notes", "Lưu ý", (l.notes || []).length]
     ].filter((s) => s[2]);
@@ -757,6 +790,12 @@
         <p class="lh-vi">${esc(l.titleVi)}</p>
         ${l.summary ? `<p class="muted lh-sum">${esc(l.summary)}</p>` : ""}
       </header>
+      ${l.warmup ? `<div class="warmup">
+        <span class="warm-tag">Khởi động</span>
+        <p class="warm-q">${esc(l.warmup.q)} ${speakBtn(l.warmup.q, "Nghe câu hỏi")}</p>
+        <p class="warm-a">${rich(l.warmup.a).replace(/→/g, '<span class="warm-arrow">→</span>')}</p>
+        ${l.warmup.vi ? `<p class="muted small">${esc(l.warmup.vi)}</p>` : ""}
+      </div>` : ""}
       <nav class="section-nav" aria-label="Mục trong buổi học">
         ${sections.map(([sid, name, n]) => `<button type="button" data-jump="${sid}">${name}${sid === "sec-vocab" || sid === "sec-structures" ? `<span class="chip-count">${n}</span>` : ""}</button>`).join("")}
       </nav>
@@ -776,6 +815,8 @@
         <div id="lessonWords"></div>
       </section>
 
+      ${(l.sections || []).map((x) => customSection(x, lw)).join("")}
+
       ${(l.structures || []).length ? `<section class="lsec" id="sec-structures">
         <div class="lsec-head"><h2>Cấu trúc câu</h2></div>
         ${l.structuresIntro ? `<p class="muted">${esc(l.structuresIntro)}</p>` : ""}
@@ -785,7 +826,7 @@
             <div>
               <p class="struct-en">${fmtPattern(s.en)} ${speakBtn(s.en, "Nghe mẫu câu")}</p>
               ${s.usage ? `<p class="struct-use">${esc(s.usage)}</p>` : ""}
-              ${s.ex ? `<div class="ex"><p class="ex-en">${esc(s.ex)} ${speakBtn(s.ex, "Nghe câu ví dụ")}</p>${s.exVi ? `<p class="ex-vi">${esc(s.exVi)}</p>` : ""}</div>` : ""}
+              ${s.ex ? `<div class="ex"><p class="ex-en">${rich(s.ex)} ${speakBtn(s.ex, "Nghe câu ví dụ")}</p>${s.exVi ? `<p class="ex-vi">${esc(s.exVi)}</p>` : ""}</div>` : ""}
             </div>
           </li>`).join("")}
         </ol>
@@ -803,17 +844,19 @@
         ${exercisesHTML(l.exercises)}
       </section>` : ""}
 
-      ${l.sample ? `<section class="lsec" id="sec-sample">
+      ${samples.length ? `<section class="lsec" id="sec-sample">
         <div class="lsec-head"><h2>Bài nói mẫu</h2>
           <div class="lsec-tools">
-            <button type="button" class="btn btn-soft" data-speak="${esc(l.sample.en)}" data-rate="0.9">${ICON.speak} Nghe bài mẫu</button>
-            ${l.sample.vi ? `<button type="button" class="btn btn-ghost" id="toggleVi" aria-expanded="false">Hiện bản dịch</button>` : ""}
+            ${samples.some((x) => x.vi) ? `<button type="button" class="btn btn-ghost" id="toggleVi" aria-expanded="false">Hiện bản dịch</button>` : ""}
           </div>
         </div>
-        <div class="sample">
-          <p class="sample-en">${slots(highlightVocab(l.sample.en, lw))}</p>
-          ${l.sample.vi ? `<p class="sample-vi" id="sampleVi" hidden><b>Dịch:</b> ${slots(esc(l.sample.vi))}</p>` : ""}
-        </div>
+        ${samples.map((x) => `<div class="sample">
+          ${x.title || samples.length > 1 ? `<div class="sample-head"><h3>${esc(x.title || "")}</h3>
+            <button type="button" class="btn btn-soft btn-sm" data-speak="${esc(x.en)}" data-rate="0.9">${ICON.speak} Nghe</button></div>`
+            : `<div class="sample-head sample-head-solo"><button type="button" class="btn btn-soft btn-sm" data-speak="${esc(x.en)}" data-rate="0.9">${ICON.speak} Nghe bài mẫu</button></div>`}
+          <p class="sample-en">${slots(vocabText(x.en, lw))}</p>
+          ${x.vi ? `<p class="sample-vi" hidden><b>Dịch:</b> ${slots(esc(x.vi))}</p>` : ""}
+        </div>`).join("")}
         <p class="muted small">Các từ được tô màu là từ vựng của buổi này — bấm vào để xem nghĩa.</p>
       </section>` : ""}
 
@@ -826,7 +869,7 @@
 
       ${(l.notes || []).length ? `<section class="lsec" id="sec-notes">
         <div class="lsec-head"><h2>Lưu ý dùng từ</h2></div>
-        <ul class="notes">${l.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>
+        <ul class="notes">${l.notes.map((n) => `<li>${rich(n)}</li>`).join("")}</ul>
       </section>` : ""}
       ${pager}`;
 
@@ -851,10 +894,11 @@
 
     if (l.exercises) bindExercises($("#sec-exercises"), l.exercises);
     $("#toggleVi")?.addEventListener("click", (e) => {
-      const vi = $("#sampleVi");
-      vi.hidden = !vi.hidden;
-      e.currentTarget.textContent = vi.hidden ? "Hiện bản dịch" : "Ẩn bản dịch";
-      e.currentTarget.setAttribute("aria-expanded", String(!vi.hidden));
+      const vis = $$(".sample-vi");
+      const hide = !vis[0]?.hidden;
+      vis.forEach((v) => { v.hidden = hide; });
+      e.currentTarget.textContent = hide ? "Hiện bản dịch" : "Ẩn bản dịch";
+      e.currentTarget.setAttribute("aria-expanded", String(!hide));
     });
     $$(".vocab-link").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); focusWord(a.dataset.word); }));
 
@@ -894,7 +938,8 @@
   function highlightVocab(text, list) {
     const phrases = [];
     list.forEach((w) => {
-      const parts = w.w.split("/").map((s) => s.trim()).filter(Boolean);
+      const base = w.w.replace(/\([^)]*\)/g, " ").replace(/\b(sth|sb)\b/g, " ").replace(/[!?]/g, "").replace(/\s+/g, " ");
+      const parts = base.split("/").map((s) => s.trim()).filter(Boolean);
       const last = parts[parts.length - 1].split(/\s+/);
       parts.forEach((s, i) => {
         // "lead / have a healthy lifestyle" → "lead a healthy lifestyle"
@@ -902,7 +947,8 @@
         if (s.length < 3) return;
         // "recharge your batteries" → khớp cả "recharge our batteries"
         const pattern = s.split(/\s+/).map((tok) =>
-          /^(a|an|the|your|my|our|his|her|their)$/i.test(tok) ? "(?:a|an|the|your|my|our|his|her|their)" : tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+          /^(a|an|the|your|my|our|his|her|their)$/i.test(tok) ? "(?:a|an|the|your|my|our|his|her|their)" :
+          /^(yourself|myself|ourselves|himself|herself|themselves)$/i.test(tok) ? "(?:yourself|myself|ourselves|himself|herself|themselves)" : tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
         ).join("\\s+");
         phrases.push({ re: pattern, id: w.id, len: s.length });
       });
@@ -924,6 +970,74 @@
       pos = e;
     });
     return out + esc(text.slice(pos));
+  }
+
+  // văn bản có **chữ đậm**: phần đậm được giữ, và thành link nếu là từ vựng của buổi
+  function vocabText(text, list) {
+    if (!text.includes("**")) return highlightVocab(text, list);
+    return text.split(/\*\*(.+?)\*\*/g).map((seg, i) => i % 2 ? `<strong>${highlightVocab(seg, list)}</strong>` : esc(seg)).join("");
+  }
+
+  /* ---------- Các mục riêng của buổi: phrases / table / dialogue / story ---------- */
+  function customSection(x, lw) {
+    const head = `<div class="lsec-head"><h2>${esc(x.title)}</h2>${x.type === "dialogue" || x.type === "story"
+      ? `<div class="lsec-tools"><button type="button" class="btn btn-ghost btn-sm" data-vi-toggle aria-pressed="true">Ẩn bản dịch</button></div>` : ""}</div>
+      ${x.intro ? `<p class="muted sec-intro">${rich(x.intro)}</p>` : ""}`;
+    let body = "";
+    if (x.type === "phrases") {
+      body = `<div class="phrase-grid">${x.items.map((it, i) => `
+        <article class="phrase-card">
+          <header><span class="phrase-n">${i + 1}</span><div><h3>${esc(it.title)}</h3><p class="muted">${esc(it.vi)}</p></div></header>
+          <div class="phrase-chips">${it.phrases.map((ph) =>
+            `<button type="button" class="pchip${ph.includes("**") ? " em" : ""}" data-speak="${esc(plain(ph))}" title="Nghe">${rich(ph)}</button>`).join("")}</div>
+          ${it.ex ? `<div class="ex"><p class="ex-en">${vocabText(it.ex, lw)} ${speakBtn(it.ex, "Nghe câu")}</p>${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}</div>` : ""}
+        </article>`).join("")}</div>`;
+    } else if (x.type === "table") {
+      const cell = (c, ci) => c.split("\n").map((line, li) => {
+        const m = /^([+-])\s*(.*)$/.exec(line);
+        if (m) return `<span class="tc-line ${m[1] === "+" ? "tc-pro" : "tc-con"}"><i>${m[1] === "+" ? "+" : "−"}</i><span>${rich(m[2])}</span></span>`;
+        return `<span class="tc-line${ci === 0 && li > 0 ? " muted small" : ""}">${rich(line)}</span>`;
+      }).join("");
+      body = `<div class="dtable-wrap"><table class="dtable">
+        <thead><tr>${x.cols.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+        <tbody>${x.rows.map((r) => `<tr>${r.map((c, ci) => `<td data-label="${esc(x.cols[ci])}">${cell(c, ci)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table></div>`;
+    } else if (x.type === "dialogue") {
+      body = (x.dialogues || [x]).map((d) => {
+        const who = [...new Set(d.lines.map((ln) => ln.who))];
+        return `<article class="dialogue">
+          <div class="dl-head"><h3>${esc(d.title)}</h3>
+            <button type="button" class="btn btn-soft btn-sm" data-speak-all="${esc(JSON.stringify(d.lines.map((ln) => plain(ln.en).replace(/^\([^)]*\)\s*/, ""))))}">${ICON.speak} Nghe cả bài</button></div>
+          ${d.intro ? `<p class="muted small">${rich(d.intro)}</p>` : ""}
+          <div class="dl-lines">${d.lines.map((ln) => {
+            const k = who.indexOf(ln.who);
+            return `<div class="dl-line ${k % 2 ? "dl-right" : "dl-left"} dl-c${k % 3}">
+              <span class="dl-who">${esc(ln.who)}</span>
+              <div class="dl-bubble"><p class="dl-en">${vocabText(ln.en, lw)} ${speakBtn(ln.en, "Nghe câu")}</p>${ln.vi ? `<p class="dl-vi">${esc(ln.vi)}</p>` : ""}</div>
+            </div>`;
+          }).join("")}</div>
+          ${d.after ? `<p class="dl-after">${rich(d.after)}</p>` : ""}
+        </article>`;
+      }).join("");
+    } else if (x.type === "story") {
+      body = `<ol class="story">${x.lines.map((ln) => `
+        <li><p class="ex-en">${vocabText(ln.en, lw)} ${speakBtn(ln.en, "Nghe câu")}</p>${ln.vi ? `<p class="dl-vi">${esc(ln.vi)}</p>` : ""}</li>`).join("")}</ol>`;
+    }
+    return `<section class="lsec" id="sec-${esc(x.id)}">${head}${body}</section>`;
+  }
+
+  // đọc lần lượt từng câu của hội thoại
+  function speakAll(lines) {
+    if (!("speechSynthesis" in window)) { toast("Trình duyệt chưa hỗ trợ đọc phát âm"); return; }
+    speechSynthesis.cancel();
+    const vs = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang));
+    lines.forEach((t, i) => {
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "en-GB";
+      if (vs.length) u.voice = vs[i % Math.min(vs.length, 2)];
+      u.rate = 0.9;
+      speechSynthesis.speak(u);
+    });
   }
 
   /* ---------- Ngữ pháp ---------- */
@@ -1058,9 +1172,9 @@
 
   // làm nổi các ô trống [..] và ký hiệu S + V trong mẫu câu
   function fmtPattern(s) {
-    return esc(s)
+    return rich(s)
       .replace(/\[([^\]]+)\]/g, '<span class="slot">$1</span>')
-      .replace(/\b(S|V|noun|reason|frequency)\b(?=[\s.,+…]|$)/g, '<span class="sym">$1</span>');
+      .replace(/\b(S|V|N|noun|reason|frequency)\b(?=[\s.,+…)]|$)/g, '<span class="sym">$1</span>');
   }
 
   function renderNotFound() {

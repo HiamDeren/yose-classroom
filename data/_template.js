@@ -61,6 +61,23 @@ YOSE.addLesson({
   },
 
   sample: { en: "Sample answer in English.", vi: "Bản dịch." },
+  // hoặc nhiều bài mẫu: samples: [{ title: "Bài 1: …", en: "…", vi: "…" }, …]
+
+  /* ---- Tùy chọn (xem data/lesson-04.js để có ví dụ đầy đủ) ----
+     Viết **chữ đậm** để đánh dấu từ được nhấn mạnh trên lớp (dùng được ở ví dụ, bài mẫu, hội thoại, lưu ý).
+
+     warmup: { q: "Câu hỏi khởi động?", a: "Câu trả lời → …", vi: "Dịch" },
+
+     sections: [   // các mục riêng, hiện sau phần Từ vựng
+       { id: "reasons", nav: "Tên trên thanh mục", type: "phrases", title: "…", intro: "…",
+         items: [{ title: "…", vi: "…", phrases: ["cụm 1", "**cụm nhấn mạnh**"], ex: "…", exVi: "…" }] },
+       { id: "places", type: "table", title: "…", cols: ["A", "B", "C"],
+         rows: [["dòng 1\ndòng phụ", "…", "+ ưu điểm\n- nhược điểm"]] },
+       { id: "dialogues", type: "dialogue", title: "Hội thoại mẫu",
+         dialogues: [{ title: "…", intro: "", lines: [{ who: "Anna", en: "…", vi: "…" }], after: "" }] },
+       { id: "story", type: "story", title: "…", intro: "…", lines: [{ en: "…", vi: "…" }] }
+     ],
+  */
 
   practice: [
     { label: "Ý 1", text: "I ___ because ___." }
