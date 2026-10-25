@@ -16,7 +16,8 @@
      "expr"    – Cụm cố định (a range of, within easy walking distance…)
 
    Dạng từ (forms): ghi null nếu không có dạng thông dụng.
-   Các trường không bắt buộc: ipa, formsOf, forms, note, ex, exVi,
+   def = định nghĩa tiếng Anh (Definition in English).
+   Các trường không bắt buộc: ipa, def, formsOf, forms, note, ex, exVi,
    structures, grammar, sample, practice, notes. */
 
 YOSE.addLesson({
@@ -32,6 +33,7 @@ YOSE.addLesson({
 
   vocab: [
     { w: "word", ipa: "/wɜːd/", pos: "noun", group: "group1", vi: "nghĩa tiếng Việt",
+      def: "A simple definition in English.",
       forms: { adj: null, n: "word", v: "word", adv: null },
       ex: "Example sentence.", exVi: "Câu ví dụ." }
   ],

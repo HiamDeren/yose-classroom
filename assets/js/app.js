@@ -86,6 +86,7 @@
         order: i,
         _w: norm(v.w),
         _vi: norm(v.vi),
+        _def: norm(v.def),
         _forms: norm(formsText + " " + (v.formsOf || "")),
         _ex: norm(plain((v.ex || "") + " " + (v.exVi || "") + " " + (v.note || ""))),
         _meta: norm(l.topic + " " + (gmap[v.group] || "") + " " + (POS[v.pos]?.label || ""))
@@ -130,11 +131,12 @@
     if (w._w.includes(q)) return 400;
     if (w._forms.includes(q)) return 300;
     if (hasWord(w._vi, q)) return 250;
+    if (hasWord(w._def, q)) return 150;
     if (hasWord(w._ex, q)) return 80;
     if (hasWord(w._meta, q)) return 60;
     const toks = q.split(/\s+/).filter(Boolean);
     if (toks.length > 1) {
-      const all = [w._w, w._forms, w._vi, w._ex, w._meta].join(" ");
+      const all = [w._w, w._forms, w._vi, w._def, w._ex, w._meta].join(" ");
       if (toks.every((t) => hasWord(all, t))) return 40;
     }
     return 0;
@@ -237,7 +239,8 @@
         ${posBadge(w.pos)}
       </header>
       ${w.ipa ? `<div class="ipa">${esc(w.ipa)}</div>` : ""}
-      <p class="word-vi">${hl(w.vi, q)}</p>
+      <p class="word-vi" data-reveal>${hl(w.vi, q)}</p>
+      ${w.def ? `<p class="word-def"><span class="def-tag" title="Definition in English">EN</span><span>${hl(w.def, q)}</span>${speakBtn(w.def, "Nghe định nghĩa")}</p>` : ""}
       ${chips ? `<div class="forms"><span class="forms-label">Dạng từ${w.formsOf ? ` · <i>${hl(w.formsOf, q)}</i>` : ""}</span>${chips}</div>` : ""}
       ${w.note ? `<p class="word-note">${hl(w.note, q)}</p>` : ""}
       ${exampleHTML(w, q)}
@@ -252,7 +255,7 @@
       <summary>
         <span class="wr-word"><b>${hl(w.w, q)}</b>${w.ipa ? `<small class="ipa">${esc(w.ipa)}</small>` : ""}</span>
         <span class="wr-pos">${posBadge(w.pos)}</span>
-        <span class="wr-vi">${hl(w.vi, q)}</span>
+        <span class="wr-vi"><span data-reveal>${hl(w.vi, q)}</span>${w.def ? `<small class="wr-def">${hl(w.def, q)}</small>` : ""}</span>
         <span class="wr-forms">${formChips(w, q) || '<span class="muted">—</span>'}</span>
         <span class="wr-end">${speakBtn(w.w)}<span class="chev">${ICON.chevron}</span></span>
       </summary>
@@ -288,13 +291,21 @@
 
   function wordSections(list, mode, opts = {}) {
     const body = (items) => opts.layout === "table"
-      ? `<div class="wtable"><div class="wtable-head"><span>Từ</span><span>Loại</span><span>Nghĩa</span><span>Dạng từ</span><span></span></div>${items.map((w) => wordRow(w, opts)).join("")}</div>`
+      ? `<div class="wtable"><div class="wtable-head"><span>Từ</span><span>Loại</span><span>Nghĩa · Definition</span><span>Dạng từ</span><span></span></div>${items.map((w) => wordRow(w, opts)).join("")}</div>`
       : `<div class="word-grid">${items.map((w) => wordCard(w, opts)).join("")}</div>`;
     return groupWords(list, mode, opts).map((g) => `<section class="wgroup">
         ${g.head ? `<h3 class="wgroup-title">${g.head}<span class="count">${g.items.length}</span></h3>` : ""}
         ${body(g.items)}
       </section>`).join("");
   }
+
+  // chế độ tự kiểm tra: làm mờ nghĩa tiếng Việt, đọc định nghĩa tiếng Anh để đoán
+  const guessBtn = () => {
+    const on = document.body.classList.contains("guess-mode");
+    return `<button type="button" class="tb-toggle${on ? " on" : ""}" data-guess aria-pressed="${on}" title="Làm mờ nghĩa tiếng Việt, đọc định nghĩa tiếng Anh để đoán nghĩa">
+      <i class="switch" aria-hidden="true"></i>Ẩn nghĩa TV</button>`;
+  };
+  if (store.get("yose-guess") === "1") document.body.classList.add("guess-mode");
 
   // nút chuyển dạng Thẻ / Bảng (dùng chung cho Từ điển và trang buổi học)
   const layoutSeg = (cur) => `<div class="seg" role="group" aria-label="Kiểu hiển thị">
@@ -444,6 +455,16 @@
 
   // phát âm / chuyển mục — dùng ủy quyền sự kiện
   document.addEventListener("click", (e) => {
+    const gb = e.target.closest("[data-guess]");
+    if (gb) {
+      const on = document.body.classList.toggle("guess-mode");
+      store.set("yose-guess", on ? "1" : "0");
+      $$("[data-guess]").forEach((b) => { b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+      $$(".revealed").forEach((x) => x.classList.remove("revealed"));
+      return;
+    }
+    const rv = document.body.classList.contains("guess-mode") && e.target.closest("[data-reveal]:not(.revealed)");
+    if (rv) { e.preventDefault(); rv.classList.add("revealed"); return; }
     const all = e.target.closest("[data-speak-all]");
     if (all) { e.preventDefault(); speakAll(JSON.parse(all.dataset.speakAll)); return; }
     const vt = e.target.closest("[data-vi-toggle]");
@@ -729,6 +750,7 @@
         <label class="tb-select"><span>Nhóm theo</span>
           <select id="groupSel">${Object.entries(GROUPINGS).map(([k, v]) => `<option value="${k}"${pref.group === k ? " selected" : ""}>${v}</option>`).join("")}</select>
         </label>
+        ${guessBtn()}
         ${layoutSeg(pref.layout)}
       </div>`;
     $("#results").innerHTML = list.length
@@ -877,7 +899,7 @@
     let layout = store.get("yose-layout", "card") === "table" ? "table" : "card";
     const drawWords = () => {
       $$("[data-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === mode));
-      $("#lessonLayout").innerHTML = layoutSeg(layout);
+      $("#lessonLayout").innerHTML = guessBtn() + layoutSeg(layout);
       let list = searchWords(filter.value, lw);
       if (mode === "pos") list.sort(byWord); else list.sort((a, b) => a.order - b.order);
       box.innerHTML = list.length
