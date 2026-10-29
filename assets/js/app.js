@@ -258,11 +258,11 @@
     const q = opts.q || "";
     return `<details class="wrow" id="w-${esc(w.id)}">
       <summary>
-        <span class="wr-word"><b>${hl(w.w, q)}</b>${w.ipa ? `<small class="ipa">${esc(w.ipa)}</small>` : ""}</span>
+        <span class="wr-word"><span class="wr-head"><b>${hl(w.w, q)}</b>${speakBtn(w.w)}</span>${w.ipa ? `<small class="ipa">${esc(w.ipa)}</small>` : ""}</span>
         <span class="wr-pos">${posBadge(w.pos)}</span>
         <span class="wr-vi"><span data-reveal>${hl(w.vi, q)}</span>${w.def ? `<small class="wr-def">${hl(w.def, q)}</small>` : ""}</span>
         <span class="wr-forms">${formChips(w, q) || '<span class="muted">—</span>'}</span>
-        <span class="wr-end">${speakBtn(w.w)}<span class="chev">${ICON.chevron}</span></span>
+        <span class="wr-end"><span class="chev">${ICON.chevron}</span></span>
       </summary>
       <div class="wr-detail">
         ${w.formsOf ? `<p class="muted small">Dạng từ của <b>${hl(w.formsOf, q)}</b></p>` : ""}

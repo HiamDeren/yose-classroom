@@ -420,7 +420,7 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
 /* ----- Dạng bảng ----- */
 .wtable { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; box-shadow: var(--shadow); }
 .wtable-head, .wrow > summary {
-  display: grid; grid-template-columns: minmax(150px, 1.1fr) 62px minmax(140px, 1.2fr) minmax(0, 1.7fr) 64px;
+  display: grid; grid-template-columns: minmax(150px, 1.1fr) 62px minmax(140px, 1.2fr) minmax(0, 1.7fr) 28px;
   gap: 14px; align-items: center; padding: 10px 16px;
 }
 .wtable-head { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--surface-2); border-bottom: 1px solid var(--line); }
@@ -430,7 +430,9 @@ a.lesson-card:hover { transform: translateY(-2px); border-color: var(--brand); }
 .wrow > summary::-webkit-details-marker { display: none; }
 .wrow > summary:hover, .wrow[open] > summary { background: var(--surface-2); }
 .wr-word { display: flex; flex-direction: column; min-width: 0; }
+.wr-head { display: flex; align-items: center; gap: 2px; min-width: 0; }
 .wr-word b { font-size: 16px; overflow-wrap: anywhere; }
+.wr-head .speak { width: 26px; height: 26px; font-size: 15px; }
 .wr-word .ipa { margin: 0; font-size: 13px; }
 .wr-vi { font-size: 14.5px; color: var(--ink-2); }
 .wr-forms .fchip { font-size: 12.5px; padding: 2px 7px; }
