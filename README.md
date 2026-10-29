@@ -26,6 +26,9 @@ data/
   lesson-02.js   ← Healthy and Unhealthy Habits
   lesson-03.js   ← Describing a Trip
   lesson-04.js   ← Shopping
+  lesson-05.js   ← Shopping (Part 2)
+  homework-01…05.js ← bài tập từng buổi
+  _homework-template.js ← mẫu để tạo bài tập
   _template.js   ← mẫu để tạo buổi mới
 ```
 
@@ -40,6 +43,12 @@ data/
 
 
 Các buổi có cùng `topic` sẽ được gom chung khi lọc theo chủ đề.
+
+## Bài tập
+
+Mỗi buổi có phần **Bài tập** ở cuối trang: học viên điền/chọn đáp án, bấm **Kiểm tra** để xem câu nào đúng/sai, **Xem đáp án** để xem đáp án và giải thích. Bài làm được lưu tạm trên trình duyệt của từng người.
+
+Hỗ trợ 7 dạng: nối (match), trắc nghiệm (mcq), điền từ (gap, có khung từ gợi ý / hội thoại), sửa lỗi sai (error), sắp xếp câu (order), đúng/sai (tf) và bài viết (writing — đếm từ, đếm từ vựng đã dùng, bài mẫu). Xem cách soạn trong `data/_homework-template.js`.
 
 ## Chạy thử trên máy
 

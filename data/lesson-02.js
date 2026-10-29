@@ -226,21 +226,6 @@ YOSE.addLesson({
   grammarTip:
     "Loại 1 = có khả năng thật (If + hiện tại, will/can + V). Loại 2 = giả định (If + quá khứ, would/could + V). Không dùng “will” hay “would” ngay sau If trong mẫu cơ bản.",
 
-  exercises: {
-    title: "Luyện tập câu điều kiện",
-    intro: "Điền dạng đúng của động từ trong ngoặc (hoặc chọn từ gợi ý), rồi bấm Kiểm tra hoặc nhấn Enter.",
-    items: [
-      { q: "If you ___ too much fast food, you will gain weight.", hint: "eat", a: ["eat"], explain: "Loại 1: mệnh đề If dùng hiện tại đơn." },
-      { q: "If I ___ you, I would drink more water.", hint: "be", a: ["were"], explain: "Loại 2: “If I were you” — dùng were cho mọi chủ ngữ." },
-      { q: "If she exercises regularly, she ___ more energetic.", hint: "feel", a: ["will feel", "'ll feel", "can feel"], explain: "Loại 1: mệnh đề chính dùng will + V." },
-      { q: "If he ___ so late, he wouldn't feel tired.", hint: "not / stay up", a: ["didn't stay up", "did not stay up"], explain: "Loại 2: mệnh đề If dùng quá khứ đơn, phủ định với didn't + V." },
-      { q: "If I had a bike, I ___ to work.", hint: "cycle", a: ["would cycle", "'d cycle", "could cycle"], explain: "Loại 2: mệnh đề chính dùng would + V." },
-      { q: "___ you get enough sleep, you will feel exhausted.", hint: "If / Unless", a: ["unless"], explain: "Unless = If … not: nếu không ngủ đủ thì sẽ kiệt sức." },
-      { q: "If you ___ breakfast, you may overeat at lunch.", hint: "skip", a: ["skip"], explain: "Loại 1: hiện tại đơn với chủ ngữ you." },
-      { q: "What ___ you do if you had more free time?", hint: "will / would", a: ["would"], explain: "Loại 2 (had) nên câu hỏi dùng would." }
-    ]
-  },
-
   sample: {
     en: "I try to lead a healthy lifestyle. I usually have home-cooked meals because I can choose fresh ingredients and control my portions. I also eat plenty of vegetables and exercise about three times a week, which helps me stay fit and reduce stress. I stay hydrated by drinking water throughout the day, and I try to get enough sleep. I used to stay up late and spend too much time on my phone, so I often felt tired. Now I am changing my routine one step at a time. If I keep these habits, I will feel healthier and more energetic.",
     vi: "Tôi cố gắng duy trì lối sống lành mạnh. Tôi thường ăn món nhà nấu vì có thể chọn nguyên liệu tươi và kiểm soát khẩu phần. Tôi cũng ăn nhiều rau và tập thể dục khoảng ba lần mỗi tuần, điều này giúp tôi khỏe mạnh và giảm căng thẳng. Tôi uống nước đều trong ngày để cơ thể đủ nước và cố ngủ đủ giấc. Trước đây tôi thường thức khuya và dùng điện thoại quá nhiều nên hay mệt. Bây giờ tôi đang thay đổi thói quen từng bước. Nếu duy trì những thói quen này, tôi sẽ khỏe mạnh và nhiều năng lượng hơn."

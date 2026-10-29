@@ -116,6 +116,11 @@
       lesson: l, sec: sec.id, title: plain(ph), sub: it.title + " · " + it.vi, _t: norm(plain(ph))
     })))));
 
+  live.forEach((l) => (l.sections || []).filter((sec) => sec.type === "phrasebank").forEach((sec) =>
+    sec.categories.forEach((c) => c.subs.forEach((sub) => sub.phrases.forEach((ph) => phraseIdx.push({
+      lesson: l, sec: sec.id, title: plain(ph.en), sub: ph.vi + " · " + c.title, _t: norm(plain(ph.en) + " " + ph.vi + " " + (ph.def || ""))
+    }))))));
+
   const lessonById = (id) => lessons.find((l) => String(l.id) === String(id));
   const countBy = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
 
@@ -329,7 +334,7 @@
     const ws = searchWords(q).slice(0, 8);
     const ss = searchStructures(q).slice(0, 4);
     const gs = searchGrammar(q).slice(0, 4);
-    const ps = phraseIdx.filter((x) => x._t.includes(nq)).slice(0, 4);
+    const ps = phraseIdx.filter((x) => nq.split(/\s+/).every((t) => hasWord(x._t, t))).slice(0, 4);
     const ls = live.filter((l) => norm([l.title, l.titleVi, l.topic, "buoi " + l.id].join(" ")).includes(nq));
     if (!ws.length && !ss.length && !gs.length && !ps.length && !ls.length) {
       return `<div class="qr-empty">Không tìm thấy “${esc(q)}”.<br><small>Thử gõ không dấu, từ ngắn hơn, hoặc nghĩa tiếng Việt.</small></div>`;
@@ -455,6 +460,13 @@
 
   // phát âm / chuyển mục — dùng ủy quyền sự kiện
   document.addEventListener("click", (e) => {
+    const ft = e.target.closest("[data-frame-tab]");
+    if (ft) {
+      const box = ft.closest(".frames");
+      $$("[data-frame-tab]", box).forEach((b) => { const on = b === ft; b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on)); });
+      $$("[data-frame-set]", box).forEach((d) => { d.hidden = d.dataset.frameSet !== ft.dataset.frameTab; });
+      return;
+    }
     const gb = e.target.closest("[data-guess]");
     if (gb) {
       const on = document.body.classList.toggle("guess-mode");
@@ -569,6 +581,7 @@
         <span><b>${n("vocab")}</b> từ</span>
         <span><b>${n("structures")}</b> cấu trúc</span>
         ${n("grammar") ? `<span><b>${n("grammar")}</b> ngữ pháp</span>` : ""}
+        ${((window.YOSE.homework || {})[l.id] || []).length ? `<span><b>${window.YOSE.homework[l.id].length}</b> bài tập</span>` : ""}
         ${l.sample || l.samples ? `<span>Bài nói mẫu</span>` : ""}
       </div>
       ${(l.groups || []).length ? `<div class="lc-groups">${l.groups.map((g) => `<span>${esc(g.name)}</span>`).join("")}</div>` : ""}
@@ -792,13 +805,14 @@
     document.title = `Buổi ${l.id}: ${l.title} · Yose Home`;
     const lw = words.filter((w) => w.lesson === l);
     const samples = l.samples || (l.sample ? [l.sample] : []);
+    const hw = (window.YOSE.homework || {})[l.id] || [];
     const sections = [
       ["sec-vocab", "Từ vựng", lw.length],
       ...(l.sections || []).map((x) => ["sec-" + x.id, x.nav || x.title, 1]),
       ["sec-structures", "Cấu trúc câu", (l.structures || []).length],
       ["sec-grammar", "Ngữ pháp", (l.grammar || []).length],
-      ["sec-exercises", "Luyện tập", l.exercises ? l.exercises.items.length : 0],
       ["sec-sample", "Bài nói mẫu", samples.length],
+      ["sec-homework", "Bài tập", hw.length],
       ["sec-practice", "Tự luyện", (l.practice || []).length],
       ["sec-notes", "Lưu ý", (l.notes || []).length]
     ].filter((s) => s[2]);
@@ -861,11 +875,6 @@
         ${l.grammarTip ? `<div class="tip"><b>Nhớ nhanh</b><p>${esc(l.grammarTip)}</p></div>` : ""}
       </section>` : ""}
 
-      ${l.exercises ? `<section class="lsec" id="sec-exercises">
-        <div class="lsec-head"><h2>${esc(l.exercises.title || "Luyện tập")}</h2></div>
-        ${exercisesHTML(l.exercises)}
-      </section>` : ""}
-
       ${samples.length ? `<section class="lsec" id="sec-sample">
         <div class="lsec-head"><h2>Bài nói mẫu</h2>
           <div class="lsec-tools">
@@ -881,6 +890,8 @@
         </div>`).join("")}
         <p class="muted small">Các từ được tô màu là từ vựng của buổi này — bấm vào để xem nghĩa.</p>
       </section>` : ""}
+
+      ${hw.length ? homeworkHTML(l, hw) : ""}
 
       ${(l.practice || []).length ? `<section class="lsec" id="sec-practice">
         <div class="lsec-head"><h2>Khung tự luyện trả lời</h2></div>
@@ -914,7 +925,7 @@
     });
     drawWords();
 
-    if (l.exercises) bindExercises($("#sec-exercises"), l.exercises);
+    if (hw.length) bindHomework($("#sec-homework"), l, hw, lw);
     $("#toggleVi")?.addEventListener("click", (e) => {
       const vis = $$(".sample-vi");
       const hide = !vis[0]?.hidden;
@@ -1041,6 +1052,33 @@
           ${d.after ? `<p class="dl-after">${rich(d.after)}</p>` : ""}
         </article>`;
       }).join("");
+    } else if (x.type === "phrasebank") {
+      body = `<div class="pbank">${x.categories.map((c, ci) => `
+        <article class="pbank-cat">
+          <header><span class="phrase-n">${ci + 1}</span><div><h3>${esc(c.title)}</h3>${c.vi ? `<p class="muted">${esc(c.vi)}</p>` : ""}</div></header>
+          ${c.subs.map((sub) => `<div class="pbank-sub">
+            ${sub.title ? `<h4>${esc(sub.title)}${sub.vi ? ` <span>· ${esc(sub.vi)}</span>` : ""}</h4>` : ""}
+            <ul>${sub.phrases.map((ph) => `<li id="pb-${slug(ph.en)}">
+              <p class="pb-en"><b>${rich(ph.en)}</b>${speakBtn(ph.en)}</p>
+              <p class="pb-vi" data-reveal>${esc(ph.vi)}</p>
+              ${ph.def ? `<p class="pb-def"><span class="def-tag">EN</span>${esc(ph.def)}</p>` : ""}
+            </li>`).join("")}</ul>
+          </div>`).join("")}
+        </article>`).join("")}</div>`;
+    } else if (x.type === "frames") {
+      body = `<div class="frames">
+        ${x.sets.length > 1 ? `<div class="seg frames-tabs" role="tablist">${x.sets.map((st, k) => `<button type="button" role="tab" data-frame-tab="${k}" class="${k ? "" : "on"}" aria-selected="${!k}">${esc(st.label)}</button>`).join("")}</div>` : ""}
+        ${x.sets.map((st, k) => `<div class="frames-set" data-frame-set="${k}"${k ? " hidden" : ""}>
+          ${st.groups.map((g, gi) => `<article class="frame-group">
+            <h3><span class="phrase-n">${gi + 1}</span>${esc(g.title)}</h3>
+            <ul>${g.items.map((it) => `<li>
+              <p class="fr-pat">${fmtPattern(it.en)}</p>
+              ${it.ex ? `<p class="ex-en">${rich(it.ex)} ${speakBtn(it.ex, "Nghe câu")}</p>` : ""}
+              ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
+            </li>`).join("")}</ul>
+          </article>`).join("")}
+        </div>`).join("")}
+      </div>`;
     } else if (x.type === "story") {
       body = `<ol class="story">${x.lines.map((ln) => `
         <li><p class="ex-en">${vocabText(ln.en, lw)} ${speakBtn(ln.en, "Nghe câu")}</p>${ln.vi ? `<p class="dl-vi">${esc(ln.vi)}</p>` : ""}</li>`).join("")}</ol>`;
@@ -1127,65 +1165,301 @@
     </div>`;
   }
 
-  /* ---------- Bài luyện tập (điền từ, tự chấm) ---------- */
-  const normAns = (s) => String(s || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[.!?]/g, "").replace(/\s+/g, " ").trim();
+  /* ---------- Bài tập: điền / chọn, tự chấm đúng–sai ---------- */
+  const normAns = (s) => String(s || "").toLowerCase().replace(/[’‘`]/g, "'").replace(/[“”"]/g, "")
+    .replace(/[.!?,;:]+$/g, "").replace(/\s*→\s*/g, " → ").replace(/\s+/g, " ").trim();
+  const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const HW_TYPES = {
+    match: "Nối", mcq: "Trắc nghiệm", gap: "Điền từ", error: "Sửa lỗi sai",
+    order: "Sắp xếp", tf: "Đúng / Sai", writing: "Viết / Nói"
+  };
+  const hwGraded = (ex) => ex.type !== "writing";
+  const hwCount = (ex) => !hwGraded(ex) ? 0 : ex.type === "order" ? 1 : ex.items.filter((it) => it.a !== undefined).length;
+  // câu có "___" → ô trống
+  const blankQ = (q, input) => {
+    const [a, b] = String(q).split(/_{2,}/);
+    return b === undefined ? rich(a) + " " + input : rich(a) + input + rich(b);
+  };
+  const qBlank = (q) => rich(q).replace(/_{2,}/g, '<span class="hw-blank"></span>');
 
-  function exercisesHTML(ex) {
-    return `<p class="muted">${esc(ex.intro || "")}</p>
-      <div class="quiz-bar"><span id="quizScore">Đã đúng <b>0</b>/${ex.items.length}</span>
-        <span class="quiz-actions"><button type="button" class="btn btn-ghost btn-sm" data-quiz="all">Xem tất cả đáp án</button><button type="button" class="btn btn-ghost btn-sm" data-quiz="reset">Làm lại</button></span></div>
-      <ol class="quiz">${ex.items.map((it, i) => {
-        const [before, after] = it.q.split(/_{2,}/);
-        return `<li class="q" data-i="${i}">
-          <p class="q-text">${esc(before)}<input class="q-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Câu ${i + 1}: điền từ" size="${Math.max(8, (it.a[0] || "").length + 2)}">${esc(after || "")}</p>
-          <div class="q-row">
-            ${it.hint ? `<span class="q-hint">(${esc(it.hint)})</span>` : ""}
-            <button type="button" class="btn btn-soft btn-sm" data-quiz="check">Kiểm tra</button>
-            <button type="button" class="link-btn" data-quiz="show">Xem đáp án</button>
-          </div>
-          <p class="q-fb" hidden></p>
-        </li>`;
-      }).join("")}</ol>`;
+  function hwItemHTML(ex, ei, it, i, num) {
+    const fb = `<p class="hw-fb" aria-live="polite" hidden></p>`;
+    const n = `<span class="hw-num">${num}</span>`;
+    if (ex.type === "match") {
+      return `<div class="hw-item hw-row" data-i="${i}">${n}<span class="hw-word">${rich(it.q)}</span>
+        <select class="hw-sel" data-in aria-label="Câu ${num}"><option value="">—</option>${ex.options.map((o) => `<option value="${o.k}">${o.k}</option>`).join("")}</select>${fb}</div>`;
+    }
+    if (ex.type === "mcq") {
+      return `<div class="hw-item" data-i="${i}"><p class="hw-q">${n}${qBlank(it.q)}</p>
+        <div class="hw-opts" role="radiogroup">${it.options.map((o, k) => `
+          <label class="hw-opt"><input type="radio" name="hw-${ei}-${i}" value="${k}" data-in><span><b>${LETTERS[k]}.</b> ${esc(o)}</span></label>`).join("")}</div>${fb}</div>`;
+    }
+    if (ex.type === "tf") {
+      return `<div class="hw-item hw-row" data-i="${i}">${n}<span class="hw-q-inline">${qBlank(it.q)}</span>
+        <span class="hw-tf"><button type="button" data-tf="T">True</button><button type="button" data-tf="F">False</button></span>${fb}</div>`;
+    }
+    if (ex.type === "error") {
+      return `<div class="hw-item" data-i="${i}"><p class="hw-q">${n}${rich(it.q)}</p>
+        <p class="hw-fixrow"><span class="muted small">Sửa thành:</span><input class="q-in hw-in" type="text" data-in autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Câu ${num}: phần sửa lại" placeholder="vd: worn out"></p>${fb}</div>`;
+    }
+    // gap (kể cả hội thoại có who)
+    if (it.a === undefined) return `<div class="hw-line">${it.who ? `<b class="hw-who">${esc(it.who)}:</b> ` : ""}${rich(it.q)}</div>`;
+    const w = Math.max(7, ...it.a.map((a) => a.length)) + 1;
+    const input = `<input class="q-in hw-in" type="text" data-in autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Câu ${num}" style="width:${Math.min(w, 34)}ch">`;
+    return `<div class="hw-item" data-i="${i}"><p class="hw-q">${n}${it.who ? `<b class="hw-who">${esc(it.who)}:</b> ` : ""}${blankQ(it.q, input)}${it.hint ? ` <span class="hw-hint">(${esc(it.hint)})</span>` : ""}</p>${fb}</div>`;
   }
 
-  function bindExercises(root, ex) {
-    const score = () => {
-      const n = $$(".q.ok", root).length;
-      $("#quizScore").innerHTML = `Đã đúng <b>${n}</b>/${ex.items.length}${n === ex.items.length ? " 🎉" : ""}`;
+  function hwBodyHTML(ex, ei) {
+    if (ex.type === "order") {
+      return `<div class="hw-order">
+          <div class="hw-order-list">${ex.items.map((it) => `<button type="button" class="hw-sent" data-k="${it.k}"><b>${it.k}</b><span>${rich(it.t)}</span><i class="hw-pos"></i></button>`).join("")}</div>
+          <div class="hw-seqbar"><span class="muted small">Thứ tự của bạn:</span><span class="hw-seq">${ex.items.map(() => `<span class="hw-slot"></span>`).join('<span class="hw-dash">–</span>')}</span>
+            <button type="button" class="link-btn" data-hw="undo">Xóa bớt</button></div>
+          <p class="hw-fb" aria-live="polite" hidden></p>
+        </div>`;
+    }
+    if (ex.type === "writing") {
+      return `<div class="hw-writing">
+          ${(ex.steps || []).length ? `<ol class="hw-steps">${ex.steps.map((x) => `<li>${rich(x)}</li>`).join("")}</ol>` : ""}
+          <textarea class="hw-text" data-in rows="8" placeholder="Viết bài của bạn ở đây…" aria-label="Bài viết"></textarea>
+          <div class="hw-meter"><span class="hw-wc">0 từ</span><span class="hw-vc"></span></div>
+          <div class="hw-used"></div>
+          ${(ex.criteria || []).length ? `<div class="hw-criteria"><b class="small">Tự chấm:</b>${ex.criteria.map((c, k) => `<label><input type="checkbox" data-crit="${k}"> ${esc(c)}</label>`).join("")}</div>` : ""}
+          ${ex.sample ? `<details class="hw-sample"><summary>Xem bài mẫu</summary><p class="sample-en">${rich(ex.sample.en)}</p>${ex.sample.vi ? `<p class="sample-vi"><b>Dịch:</b> ${esc(ex.sample.vi)}</p>` : ""}</details>` : ""}
+        </div>`;
+    }
+    let num = 0;
+    const items = ex.items.map((it, i) => hwItemHTML(ex, ei, it, i, it.a === undefined && ex.type === "gap" ? "" : (it.n || ++num))).join("");
+    if (ex.type === "match") {
+      return `<div class="hw-match"><div class="hw-match-items">${items}</div>
+        <ol class="hw-match-opts">${ex.options.map((o) => `<li><b>${o.k}.</b> ${rich(o.t)}</li>`).join("")}</ol></div>`;
+    }
+    return `<div class="hw-items${ex.type === "gap" && ex.items.some((x) => x.who) ? " hw-dialogue" : ""}">${items}</div>`;
+  }
+
+  function homeworkHTML(l, list) {
+    const total = list.reduce((n, ex) => n + hwCount(ex), 0);
+    return `<section class="lsec" id="sec-homework">
+      <div class="lsec-head"><h2>Bài tập</h2><div class="hw-total">Điểm: <b id="hwTotal">0</b>/${total}</div></div>
+      <p class="muted">Làm bài rồi bấm <b>Kiểm tra</b> để xem câu nào đúng/sai. Bài làm được lưu tạm trên trình duyệt của bạn.</p>
+      <nav class="hw-index">${list.map((ex, ei) => `<button type="button" class="hw-chip" data-jump="hw-${ei}"><b>${ei + 1}</b> ${esc(HW_TYPES[ex.type] || ex.type)}<span class="hw-chip-score" data-score-of="${ei}"></span></button>`).join("")}</nav>
+      ${list.map((ex, ei) => `<article class="hw" id="hw-${ei}" data-ex="${ei}">
+        <header class="hw-head">
+          <span class="hw-n">Bài ${ei + 1}</span>
+          <div class="hw-title"><h3>${esc(ex.title)}</h3>${ex.intro ? `<p class="muted small">${rich(ex.intro)}</p>` : ""}</div>
+          <span class="hw-score" hidden></span>
+        </header>
+        ${(ex.bank || []).length ? `<div class="hw-bank"><span class="muted small">Từ gợi ý:</span>${ex.bank.map((b) => `<span class="hw-bank-w" data-bank="${esc(normAns(b))}">${esc(b)}</span>`).join("")}</div>` : ""}
+        ${hwBodyHTML(ex, ei)}
+        ${hwGraded(ex) ? `<footer class="hw-actions">
+          <button type="button" class="btn btn-sm" data-hw="check">Kiểm tra</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-hw="show">Xem đáp án</button>
+          <button type="button" class="link-btn" data-hw="reset">Làm lại</button>
+        </footer>` : ""}
+      </article>`).join("")}
+    </section>`;
+  }
+
+  function bindHomework(root, l, list, lw) {
+    const key = "yose-hw-" + l.id;
+    let saved = {};
+    try { saved = JSON.parse(store.get(key, "{}")) || {}; } catch (e) { saved = {}; }
+    const save = () => store.set(key, JSON.stringify(saved));
+    const exEl = (ei) => $(`#hw-${ei}`, root);
+    const result = {};   // ei -> số câu đúng (sau khi kiểm tra)
+
+    const getVal = (ex, item) => {
+      if (ex.type === "mcq") { const r = $("input:checked", item); return r ? r.value : ""; }
+      if (ex.type === "tf") return item.dataset.v || "";
+      const inp = $("[data-in]", item);
+      return inp ? inp.value : "";
     };
-    const check = (li, reveal) => {
-      const it = ex.items[+li.dataset.i];
-      const input = $(".q-in", li), fb = $(".q-fb", li);
-      if (reveal) input.value = it.a[0];
-      const val = normAns(input.value);
-      if (!val) { input.focus(); return; }
-      const ok = it.a.some((a) => normAns(a) === val);
-      li.classList.toggle("ok", ok && !reveal);
-      li.classList.toggle("bad", !ok);
-      li.classList.toggle("shown", !!reveal);
-      fb.hidden = false;
-      fb.innerHTML = (reveal ? `<b>Đáp án: ${esc(it.a[0])}</b>` : ok ? "<b>Chính xác!</b>" : `<b>Chưa đúng.</b> Thử lại hoặc bấm “Xem đáp án”.`) +
-        (it.explain && (ok || reveal) ? ` ${esc(it.explain)}` : "");
-      score();
+    const setVal = (ex, item, v) => {
+      if (ex.type === "mcq") { $$("input", item).forEach((r) => { r.checked = r.value === String(v); }); return; }
+      if (ex.type === "tf") { item.dataset.v = v || ""; $$("[data-tf]", item).forEach((b) => b.classList.toggle("on", b.dataset.tf === v)); return; }
+      const inp = $("[data-in]", item); if (inp) inp.value = v ?? "";
     };
-    root.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-quiz]");
-      if (!b) return;
-      const act = b.dataset.quiz;
-      if (act === "check" || act === "show") check(b.closest(".q"), act === "show");
-      else if (act === "all") $$(".q", root).forEach((li) => check(li, true));
-      else if (act === "reset") {
-        $$(".q", root).forEach((li) => { li.className = "q"; $(".q-in", li).value = ""; $(".q-fb", li).hidden = true; });
-        score();
+    const answerText = (ex, it) =>
+      ex.type === "mcq" ? `${LETTERS[it.a]}. ${it.options[it.a]}` :
+      ex.type === "tf" ? (it.a ? "True" : "False") :
+      ex.type === "match" ? `${it.a}. ${plain((ex.options.find((o) => o.k === it.a) || {}).t || "")}` :
+      ex.type === "error" ? (it.show || it.a[0]) : it.a[0];
+    const judge = (ex, it, v) => {
+      if (v === "" || v == null) return false;
+      if (ex.type === "match") return v === it.a;
+      if (ex.type === "mcq") return +v === it.a;
+      if (ex.type === "tf") return v === (it.a ? "T" : "F");
+      const n = normAns(v);
+      return it.a.some((a) => normAns(a) === n) || (!!it.fixed && normAns(it.fixed) === n);
+    };
+    const correctVal = (ex, it) => ex.type === "tf" ? (it.a ? "T" : "F") : ex.type === "mcq" ? String(it.a) : ex.type === "match" ? it.a : it.a[0];
+
+    const setFb = (fb, cls, html) => { fb.hidden = false; fb.className = "hw-fb " + cls; fb.innerHTML = html; };
+    const updateTotal = () => {
+      const sum = Object.values(result).reduce((a, b) => a + b, 0);
+      $("#hwTotal").textContent = sum;
+    };
+    const showScore = (ei, ok, total) => {
+      result[ei] = ok;
+      const sc = $(".hw-score", exEl(ei));
+      sc.hidden = false; sc.textContent = `${ok}/${total} đúng`;
+      sc.classList.toggle("full", ok === total);
+      const chip = $(`[data-score-of="${ei}"]`, root);
+      chip.textContent = `${ok}/${total}`;
+      chip.parentNode.classList.toggle("done", ok === total);
+      updateTotal();
+    };
+
+    function check(ei, reveal) {
+      const ex = list[ei], el = exEl(ei);
+      if (ex.type === "order") {
+        const seq = el.dataset.seq || "";
+        if (reveal) { el.dataset.seq = ex.a; drawSeq(ei); saved[ei] = ex.a; save(); }
+        const ok = !reveal && seq === ex.a;
+        const fb = $(".hw-order .hw-fb", el);
+        el.classList.toggle("is-ok", ok); el.classList.toggle("is-bad", !ok && !reveal);
+        setFb(fb, reveal ? "shown" : ok ? "ok" : "bad",
+          reveal ? `<b>Đáp án: ${ex.a.split("").join(" – ")}</b>${ex.explain ? ` ${rich(ex.explain)}` : ""}`
+          : ok ? `<b>✓ Chính xác!</b>${ex.explain ? ` ${rich(ex.explain)}` : ""}`
+          : seq.length < ex.a.length ? "Hãy chọn đủ các câu theo thứ tự." : "<b>✗ Chưa đúng.</b> Thử sắp xếp lại hoặc bấm “Xem đáp án”.");
+        showScore(ei, ok ? 1 : 0, 1);
+        return;
       }
+      let ok = 0, total = 0;
+      $$(".hw-item", el).forEach((item) => {
+        const it = ex.items[+item.dataset.i];
+        if (it.a === undefined) return;
+        total++;
+        if (reveal) { setVal(ex, item, correctVal(ex, it)); saved[ei] = saved[ei] || {}; saved[ei][item.dataset.i] = correctVal(ex, it); }
+        const v = getVal(ex, item);
+        const good = !reveal && judge(ex, it, v);
+        if (good) ok++;
+        item.classList.toggle("ok", good);
+        item.classList.toggle("bad", !good && !reveal && v !== "");
+        item.classList.toggle("unanswered", !reveal && v === "");
+        item.classList.toggle("shown", !!reveal);
+        if (ex.type === "mcq") $$(".hw-opt", item).forEach((o, k) => o.classList.toggle("is-answer", (reveal || good) && k === it.a));
+        const fb = $(".hw-fb", item);
+        const why = it.explain ? ` <span class="hw-why">${rich(it.explain)}</span>` : "";
+        if (reveal) setFb(fb, "shown", `<b>Đáp án: ${esc(answerText(ex, it))}</b>${why}`);
+        else if (good) setFb(fb, "ok", `<b>✓ Đúng</b>${why}`);
+        else if (v === "") setFb(fb, "unanswered", "Chưa làm câu này.");
+        else setFb(fb, "bad", "<b>✗ Sai</b> — thử lại hoặc bấm “Xem đáp án”.");
+      });
+      if (reveal) save();
+      showScore(ei, ok, total);
+    }
+
+    function reset(ei) {
+      const ex = list[ei], el = exEl(ei);
+      delete saved[ei]; save(); delete result[ei];
+      el.classList.remove("is-ok", "is-bad");
+      if (ex.type === "order") { el.dataset.seq = ""; drawSeq(ei); }
+      $$(".hw-item", el).forEach((item) => { item.className = item.className.replace(/\b(ok|bad|unanswered|shown)\b/g, "").trim(); setVal(ex, item, ""); });
+      $$(".hw-fb", el).forEach((f) => { f.hidden = true; });
+      $$(".is-answer", el).forEach((o) => o.classList.remove("is-answer"));
+      $(".hw-score", el).hidden = true;
+      const chip = $(`[data-score-of="${ei}"]`, root); chip.textContent = ""; chip.parentNode.classList.remove("done");
+      markBank(ei); updateTotal();
+    }
+
+    function drawSeq(ei) {
+      const el = exEl(ei), seq = el.dataset.seq || "";
+      $$(".hw-slot", el).forEach((s, k) => { s.textContent = seq[k] || ""; s.classList.toggle("filled", !!seq[k]); });
+      $$(".hw-sent", el).forEach((b) => {
+        const pos = seq.indexOf(b.dataset.k);
+        b.classList.toggle("picked", pos >= 0);
+        $(".hw-pos", b).textContent = pos >= 0 ? pos + 1 : "";
+      });
+    }
+
+    function markBank(ei) {
+      const el = exEl(ei);
+      const vals = $$("[data-in]", el).map((x) => normAns(x.value)).filter(Boolean);
+      $$(".hw-bank-w", el).forEach((b) => b.classList.toggle("used", vals.some((v) => v === b.dataset.bank || v.includes(b.dataset.bank))));
+    }
+
+    // bài viết: đếm từ và các từ vựng của buổi đã dùng
+    const vocabRes = lw.map((w) => {
+      // "catch sb’s eye" → khớp cả "caught my eye"; bỏ (…), sth, sb
+      const parts = w.w.replace(/\([^)]*\)/g, " ").replace(/\bsb[’']s\b/g, "POSS").replace(/\b(sth|sb)\b/g, " ").replace(/[!?]/g, "")
+        .split("/").map((x) => x.trim()).filter((x) => x.length > 2);
+      const IRREG = { catch: "(?:catch|catches|caught|catching)", make: "(?:make|makes|made|making)", find: "(?:find|finds|found|finding)", wear: "(?:wear|wears|wore|worn|wearing)", buy: "(?:buy|buys|bought|buying)", come: "(?:come|comes|came|coming)", get: "(?:get|gets|got|getting)" };
+      const tok = (t) => t === "POSS" ? "(?:my|your|his|her|our|their|\\w+['’]s)" : IRREG[t.toLowerCase()] || t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return { w: w.w, res: parts.map((p0) => new RegExp("\\b" + p0.split(/\s+/).map(tok).join("\\s+") + "(?:e?s|d|ed|ing)?\\b", "i")) };
     });
-    root.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && e.target.classList.contains("q-in")) {
-        e.preventDefault();
-        const li = e.target.closest(".q");
-        check(li, false);
-        if (li.classList.contains("ok")) $(".q-in", li.nextElementSibling || li)?.focus();
+    function updateWriting(ei) {
+      const ex = list[ei], el = exEl(ei);
+      const text = $(".hw-text", el).value;
+      const n = (text.match(/[A-Za-z’'-]+/g) || []).length;
+      const [mn, mx] = ex.words || [0, 0];
+      const wc = $(".hw-wc", el);
+      wc.textContent = `${n} từ${mn ? ` (mục tiêu ${mn}–${mx})` : ""}`;
+      wc.classList.toggle("ok", !!mn && n >= mn && n <= mx);
+      const used = vocabRes.filter((v) => v.res.some((r) => r.test(text))).map((v) => v.w);
+      const vc = $(".hw-vc", el);
+      vc.textContent = `Đã dùng ${used.length}${ex.target ? `/${ex.target}` : ""} từ của bài`;
+      vc.classList.toggle("ok", !!ex.target && used.length >= ex.target);
+      $(".hw-used", el).innerHTML = used.map((u) => `<span class="hw-bank-w used-ok">${esc(u)}</span>`).join("");
+    }
+
+    // khôi phục bài làm đã lưu
+    list.forEach((ex, ei) => {
+      const sv = saved[ei];
+      if (ex.type === "order") { exEl(ei).dataset.seq = typeof sv === "string" ? sv : ""; drawSeq(ei); return; }
+      if (ex.type === "writing") {
+        if (sv && typeof sv === "object") {
+          $(".hw-text", exEl(ei)).value = sv.text || "";
+          $$("[data-crit]", exEl(ei)).forEach((c) => { c.checked = !!(sv.crit || {})[c.dataset.crit]; });
+        }
+        updateWriting(ei); return;
       }
+      if (sv && typeof sv === "object") $$(".hw-item", exEl(ei)).forEach((item) => { if (sv[item.dataset.i] != null) setVal(ex, item, sv[item.dataset.i]); });
+      markBank(ei);
+    });
+
+    const remember = (target) => {
+      const art = target.closest(".hw"); if (!art) return;
+      const ei = +art.dataset.ex, ex = list[ei];
+      if (ex.type === "writing") {
+        saved[ei] = { text: $(".hw-text", art).value, crit: Object.fromEntries($$("[data-crit]", art).map((c) => [c.dataset.crit, c.checked])) };
+        save(); updateWriting(ei); return;
+      }
+      const item = target.closest(".hw-item"); if (!item) return;
+      saved[ei] = saved[ei] || {};
+      saved[ei][item.dataset.i] = getVal(ex, item);
+      save(); markBank(ei);
+      // sửa câu thì bỏ trạng thái đúng/sai cũ của câu đó
+      item.classList.remove("ok", "bad", "unanswered", "shown");
+      $(".hw-fb", item).hidden = true;
+    };
+    root.addEventListener("input", (e) => remember(e.target));
+    root.addEventListener("change", (e) => remember(e.target));
+    root.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" || !e.target.matches("input.hw-in")) return;
+      e.preventDefault();
+      const ins = $$("input.hw-in", e.target.closest(".hw"));
+      const next = ins[ins.indexOf(e.target) + 1];
+      if (next) next.focus(); else check(+e.target.closest(".hw").dataset.ex, false);
+    });
+    root.addEventListener("click", (e) => {
+      const tf = e.target.closest("[data-tf]");
+      if (tf) { const item = tf.closest(".hw-item"); const ex = list[+tf.closest(".hw").dataset.ex]; setVal(ex, item, item.dataset.v === tf.dataset.tf ? "" : tf.dataset.tf); remember(item); return; }
+      const sent = e.target.closest(".hw-sent");
+      if (sent) {
+        const art = sent.closest(".hw"), ei = +art.dataset.ex, seq = art.dataset.seq || "";
+        art.dataset.seq = seq.includes(sent.dataset.k) ? seq.replace(sent.dataset.k, "") : seq + sent.dataset.k;
+        saved[ei] = art.dataset.seq; save(); drawSeq(ei);
+        art.classList.remove("is-ok", "is-bad"); $(".hw-order .hw-fb", art).hidden = true;
+        return;
+      }
+      const b = e.target.closest("[data-hw]");
+      if (!b) return;
+      const art = b.closest(".hw"), ei = +art.dataset.ex;
+      if (b.dataset.hw === "check") check(ei, false);
+      else if (b.dataset.hw === "show") check(ei, true);
+      else if (b.dataset.hw === "reset") reset(ei);
+      else if (b.dataset.hw === "undo") { art.dataset.seq = (art.dataset.seq || "").slice(0, -1); saved[ei] = art.dataset.seq; save(); drawSeq(ei); }
     });
   }
 

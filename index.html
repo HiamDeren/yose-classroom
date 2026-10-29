@@ -68,13 +68,25 @@
   </div>
 
   <script>
-    window.YOSE = { lessons: [], addLesson: function (l) { this.lessons.push(l); } };
+    window.YOSE = {
+      lessons: [], homework: {},
+      addLesson: function (l) { this.lessons.push(l); },
+      addHomework: function (id, list) { this.homework[id] = list; }
+    };
   </script>
   <!-- Dữ liệu từng buổi: thêm buổi mới bằng một dòng script ở đây -->
   <script src="data/lesson-01.js"></script>
   <script src="data/lesson-02.js"></script>
   <script src="data/lesson-03.js"></script>
   <script src="data/lesson-04.js"></script>
+  <script src="data/lesson-05.js"></script>
+
+  <!-- Bài tập từng buổi -->
+  <script src="data/homework-01.js"></script>
+  <script src="data/homework-02.js"></script>
+  <script src="data/homework-03.js"></script>
+  <script src="data/homework-04.js"></script>
+  <script src="data/homework-05.js"></script>
 
   <script src="assets/js/app.js"></script>
 </body>
