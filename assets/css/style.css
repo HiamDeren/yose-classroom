@@ -639,6 +639,12 @@ strong .vocab-link:hover { text-decoration-style: solid; }
 .dtable tr:last-child td { border-bottom: 0; }
 .dtable td:first-child { width: 26%; }
 .dtable td:nth-child(2) { width: 28%; color: var(--ink-2); }
+@media (min-width: 641px) {
+  .dtable.cols-4 td, .dtable.cols-5 td { width: auto; }
+  .dtable.cols-5 { font-size: 14.5px; }
+  .dtable.cols-5 td:first-child { width: 15%; }
+}
+.ext-link { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; }
 .tc-line { display: block; }
 .tc-line + .tc-line { margin-top: 4px; }
 .tc-pro, .tc-con { display: flex; gap: 8px; }

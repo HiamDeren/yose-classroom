@@ -32,7 +32,8 @@
 
   // **chữ đậm** trong dữ liệu = từ được nhấn mạnh trên lớp
   const plain = (s) => String(s ?? "").replace(/\*\*/g, "");
-  const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a class="ext-link" href="$2" target="_blank" rel="noopener">$1</a>');
   // khi đang tìm kiếm thì tô sáng từ khóa, còn không thì giữ chữ đậm
   const fmt = (s, q) => (q && q.trim() ? hl(plain(s), q) : rich(s));
 
@@ -925,7 +926,11 @@
     });
     drawWords();
 
-    if (hw.length) bindHomework($("#sec-homework"), l, hw, lw);
+    if (hw.length) {
+      const pb = (l.sections || []).filter((x) => x.type === "phrasebank")
+        .flatMap((x) => x.categories.flatMap((c) => c.subs.flatMap((sub) => sub.phrases.map((ph) => ({ w: plain(ph.en).replace(/\s*→.*$/, "") })))));
+      bindHomework($("#sec-homework"), l, hw, lw.concat(pb));
+    }
     $("#toggleVi")?.addEventListener("click", (e) => {
       const vis = $$(".sample-vi");
       const hide = !vis[0]?.hidden;
@@ -1031,7 +1036,7 @@
         if (m) return `<span class="tc-line ${m[1] === "+" ? "tc-pro" : "tc-con"}"><i>${m[1] === "+" ? "+" : "−"}</i><span>${rich(m[2])}</span></span>`;
         return `<span class="tc-line${ci === 0 && li > 0 ? " muted small" : ""}">${rich(line)}</span>`;
       }).join("");
-      body = `<div class="dtable-wrap"><table class="dtable">
+      body = `<div class="dtable-wrap"><table class="dtable cols-${x.cols.length}">
         <thead><tr>${x.cols.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
         <tbody>${x.rows.map((r) => `<tr>${r.map((c, ci) => `<td data-label="${esc(x.cols[ci])}">${cell(c, ci)}</td>`).join("")}</tr>`).join("")}</tbody>
       </table></div>`;
@@ -1072,7 +1077,7 @@
           ${st.groups.map((g, gi) => `<article class="frame-group">
             <h3><span class="phrase-n">${gi + 1}</span>${esc(g.title)}</h3>
             <ul>${g.items.map((it) => `<li>
-              <p class="fr-pat">${fmtPattern(it.en)}</p>
+              ${it.en ? `<p class="fr-pat">${fmtPattern(it.en)}</p>` : ""}
               ${it.ex ? `<p class="ex-en">${rich(it.ex)} ${speakBtn(it.ex, "Nghe câu")}</p>` : ""}
               ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
             </li>`).join("")}</ul>
@@ -1396,9 +1401,9 @@
       const wc = $(".hw-wc", el);
       wc.textContent = `${n} từ${mn ? ` (mục tiêu ${mn}–${mx})` : ""}`;
       wc.classList.toggle("ok", !!mn && n >= mn && n <= mx);
-      const used = vocabRes.filter((v) => v.res.some((r) => r.test(text))).map((v) => v.w);
+      const used = [...new Set(vocabRes.filter((v) => v.res.some((r) => r.test(text))).map((v) => v.w))];
       const vc = $(".hw-vc", el);
-      vc.textContent = `Đã dùng ${used.length}${ex.target ? `/${ex.target}` : ""} từ của bài`;
+      vc.textContent = `Đã dùng ${used.length}${ex.target ? `/${ex.target}` : ""} từ/cụm từ của bài`;
       vc.classList.toggle("ok", !!ex.target && used.length >= ex.target);
       $(".hw-used", el).innerHTML = used.map((u) => `<span class="hw-bank-w used-ok">${esc(u)}</span>`).join("");
     }
