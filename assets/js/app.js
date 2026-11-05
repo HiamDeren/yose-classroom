@@ -831,7 +831,7 @@
         <span class="warm-tag">Khởi động</span>
         <p class="warm-q">${esc(l.warmup.q)} ${speakBtn(l.warmup.q, "Nghe câu hỏi")}</p>
         <p class="warm-a">${rich(l.warmup.a).replace(/→/g, '<span class="warm-arrow">→</span>')}</p>
-        ${l.warmup.vi ? `<p class="muted small">${esc(l.warmup.vi)}</p>` : ""}
+        ${l.warmup.vi ? `<p class="muted small">${rich(l.warmup.vi)}</p>` : ""}
       </div>` : ""}
       <nav class="section-nav" aria-label="Mục trong buổi học">
         ${sections.map(([sid, name, n]) => `<button type="button" data-jump="${sid}">${name}${sid === "sec-vocab" || sid === "sec-structures" ? `<span class="chip-count">${n}</span>` : ""}</button>`).join("")}

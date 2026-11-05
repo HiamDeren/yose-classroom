@@ -28,7 +28,8 @@ data/
   lesson-04.js   ← Shopping
   lesson-05.js   ← Shopping (Part 2)
   lesson-06.js   ← Shopping (Part 3) & Giving Directions
-  homework-01…06.js ← bài tập từng buổi
+  lesson-07.js   ← Festival & Celebration
+  homework-01…07.js ← bài tập từng buổi
   _homework-template.js ← mẫu để tạo bài tập
   _template.js   ← mẫu để tạo buổi mới
 ```
