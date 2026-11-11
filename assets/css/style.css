@@ -707,6 +707,11 @@ strong .vocab-link:hover { text-decoration-style: solid; }
 .pb-def { display: flex; gap: 6px; font-size: 13.5px; color: var(--muted); }
 .pb-def .def-tag { margin-top: 1px; }
 
+.pb-note { font-size: 13.5px; color: var(--ink-2); padding: 4px 8px; border-radius: 7px; background: var(--surface-2); margin-top: 2px; }
+.pb-note strong { color: var(--accent); }
+.pbank-note { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--brand-soft); font-size: 14px; color: var(--ink); }
+.pbank-note strong { color: var(--brand-ink); }
+
 /* khung câu theo nhóm */
 .frames-tabs { margin-bottom: 14px; }
 .frames-set { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; align-items: start; }
@@ -716,6 +721,14 @@ strong .vocab-link:hover { text-decoration-style: solid; }
 .frame-group ul { list-style: none; margin: 0; padding: 0; display: grid; }
 .frame-group li { padding: 10px 0; border-top: 1px solid var(--line); display: grid; gap: 3px; }
 .fr-pat { font-weight: 700; color: var(--brand-ink); }
+.fr-words { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.fr-words h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); margin: 0 0 6px; }
+.fr-words ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.fr-words li { display: grid; gap: 1px; padding: 0; border: 0; }
+.frw-en { display: flex; align-items: center; gap: 2px; font-size: 14.5px; }
+.frw-en .speak { width: 22px; height: 22px; font-size: 13px; }
+.frw-vi { font-size: 13.5px; color: var(--ink-2); }
+.fr-words small { font-size: 12.5px; color: var(--muted); }
 .frame-group .ex-en { font-size: 14.5px; }
 
 /* ----- Bài tập ----- */

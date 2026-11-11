@@ -122,6 +122,11 @@
       lesson: l, sec: sec.id, title: plain(ph.en), sub: ph.vi + " · " + c.title, _t: norm(plain(ph.en) + " " + ph.vi + " " + (ph.def || ""))
     }))))));
 
+  live.forEach((l) => (l.sections || []).filter((sec) => sec.type === "frames").forEach((sec) =>
+    sec.sets.forEach((st) => st.groups.forEach((g) => (g.words || []).forEach((w) => phraseIdx.push({
+      lesson: l, sec: sec.id, title: plain(w.en), sub: w.vi + " · " + g.title, _t: norm(plain(w.en) + " " + w.vi + " " + (w.def || ""))
+    }))))));
+
   const lessonById = (id) => lessons.find((l) => String(l.id) === String(id));
   const countBy = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
 
@@ -362,7 +367,7 @@
     if (ss.length) {
       html += `<div class="qr-section"><div class="qr-label">Cấu trúc câu</div>${ss.map((s) => `
         <a class="qr-item" href="#/buoi/${s.lesson.id}?s=structures">
-          <span class="qr-main"><b>${hl(s.en, q)}</b><small>${hl(s.usage, q)}</small></span>
+          <span class="qr-main"><b>${hl(plain(s.en), q)}</b><small>${hl(s.usage, q)}</small></span>
           <span class="qr-side">Buổi ${s.lesson.id}</span>
         </a>`).join("")}</div>`;
     }
@@ -580,7 +585,7 @@
       <p class="muted">${esc(l.titleVi)}</p>
       <div class="lc-stats">
         <span><b>${n("vocab")}</b> từ</span>
-        <span><b>${n("structures")}</b> cấu trúc</span>
+        ${n("structures") ? `<span><b>${n("structures")}</b> cấu trúc</span>` : ""}
         ${n("grammar") ? `<span><b>${n("grammar")}</b> ngữ pháp</span>` : ""}
         ${((window.YOSE.homework || {})[l.id] || []).length ? `<span><b>${window.YOSE.homework[l.id].length}</b> bài tập</span>` : ""}
         ${l.sample || l.samples ? `<span>Bài nói mẫu</span>` : ""}
@@ -928,7 +933,9 @@
 
     if (hw.length) {
       const pb = (l.sections || []).filter((x) => x.type === "phrasebank")
-        .flatMap((x) => x.categories.flatMap((c) => c.subs.flatMap((sub) => sub.phrases.map((ph) => ({ w: plain(ph.en).replace(/\s*→.*$/, "") })))));
+        .flatMap((x) => x.categories.flatMap((c) => c.subs.flatMap((sub) => sub.phrases.map((ph) => ({ w: plain(ph.en).replace(/\s*→.*$/, "") })))))
+        .concat((l.sections || []).filter((x) => x.type === "frames")
+          .flatMap((x) => x.sets.flatMap((st) => st.groups.flatMap((g) => (g.words || []).map((w) => ({ w: plain(w.en) }))))));
       bindHomework($("#sec-homework"), l, hw, lw.concat(pb));
     }
     $("#toggleVi")?.addEventListener("click", (e) => {
@@ -1067,8 +1074,10 @@
               <p class="pb-en"><b>${rich(ph.en)}</b>${speakBtn(ph.en)}</p>
               <p class="pb-vi" data-reveal>${esc(ph.vi)}</p>
               ${ph.def ? `<p class="pb-def"><span class="def-tag">EN</span>${esc(ph.def)}</p>` : ""}
+              ${ph.note ? `<p class="pb-note">${rich(ph.note)}</p>` : ""}
             </li>`).join("")}</ul>
           </div>`).join("")}
+          ${c.note ? `<div class="pbank-note">${c.note.split("\n").map((ln) => `<p>${rich(ln)}</p>`).join("")}</div>` : ""}
         </article>`).join("")}</div>`;
     } else if (x.type === "frames") {
       body = `<div class="frames">
@@ -1081,6 +1090,8 @@
               ${it.ex ? `<p class="ex-en">${rich(it.ex)} ${speakBtn(it.ex, "Nghe câu")}</p>` : ""}
               ${it.exVi ? `<p class="ex-vi">${esc(it.exVi)}</p>` : ""}
             </li>`).join("")}</ul>
+            ${(g.words || []).length ? `<div class="fr-words"><h4>${esc(g.wordsTitle || "Useful words")}</h4><ul>${g.words.map((w) => `
+              <li><span class="frw-en"><b>${rich(w.en)}</b>${speakBtn(w.en)}</span><span class="frw-vi" data-reveal>${esc(w.vi)}</span>${w.def ? `<small>${esc(w.def)}</small>` : ""}</li>`).join("")}</ul></div>` : ""}
           </article>`).join("")}
         </div>`).join("")}
       </div>`;

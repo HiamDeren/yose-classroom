@@ -29,7 +29,9 @@ data/
   lesson-05.js   ← Shopping (Part 2)
   lesson-06.js   ← Shopping (Part 3) & Giving Directions
   lesson-07.js   ← Festival & Celebration
-  homework-01…07.js ← bài tập từng buổi
+  lesson-08.js   ← (sắp cập nhật)
+  lesson-09.js   ← Technology
+  homework-01…09.js ← bài tập từng buổi
   _homework-template.js ← mẫu để tạo bài tập
   _template.js   ← mẫu để tạo buổi mới
 ```
