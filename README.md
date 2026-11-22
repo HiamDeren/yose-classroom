@@ -29,9 +29,11 @@ data/
   lesson-05.js   ← Shopping (Part 2)
   lesson-06.js   ← Shopping (Part 3) & Giving Directions
   lesson-07.js   ← Festival & Celebration
-  lesson-08.js   ← (sắp cập nhật)
+  lesson-08.js   ← No recap (không có tài liệu)
   lesson-09.js   ← Technology
-  homework-01…09.js ← bài tập từng buổi
+  lesson-10.js   ← No recap (không có tài liệu)
+  lesson-11.js   ← Job – Work – Career P1
+  homework-01…11.js ← bài tập từng buổi
   _homework-template.js ← mẫu để tạo bài tập
   _template.js   ← mẫu để tạo buổi mới
 ```
@@ -52,7 +54,7 @@ Các buổi có cùng `topic` sẽ được gom chung khi lọc theo chủ đề
 
 Mỗi buổi có phần **Bài tập** ở cuối trang: học viên điền/chọn đáp án, bấm **Kiểm tra** để xem câu nào đúng/sai, **Xem đáp án** để xem đáp án và giải thích. Bài làm được lưu tạm trên trình duyệt của từng người.
 
-Hỗ trợ 7 dạng: nối (match), trắc nghiệm (mcq), điền từ (gap, có khung từ gợi ý / hội thoại), sửa lỗi sai (error), sắp xếp câu (order), đúng/sai (tf) và bài viết (writing — đếm từ, đếm từ vựng đã dùng, bài mẫu). Xem cách soạn trong `data/_homework-template.js`.
+Hỗ trợ 7 dạng: nối (match), trắc nghiệm (mcq), điền từ (gap, có khung từ gợi ý / hội thoại), sửa lỗi sai (error), sắp xếp câu (order), đúng/sai (tf — có thể đổi nhãn thành TRUE / FALSE / NOT GIVEN hoặc phân loại bằng `labels`) và bài viết (writing — đếm từ, đếm từ vựng đã dùng, bài mẫu). Xem cách soạn trong `data/_homework-template.js`.
 
 ## Chạy thử trên máy
 

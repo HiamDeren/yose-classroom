@@ -16,6 +16,8 @@
     expr:    { short: "Expr",  label: "Cụm cố định",        en: "Fixed expression" }
   };
   const POS_ORDER = Object.keys(POS);
+  // nhãn cho buổi chưa có nội dung: "No recap" (buổi không có tài liệu) hoặc "Sắp cập nhật"
+  const soonLabel = (l) => l.noRecap ? "No recap" : "Sắp cập nhật";
   const FORM_KEYS = [["adj", "Adj", "Tính từ"], ["n", "N", "Danh từ"], ["v", "V", "Động từ"], ["adv", "Adv", "Trạng từ"]];
 
   /* ---------- Tiện ích ---------- */
@@ -330,7 +332,7 @@
     if (!nq) {
       return `<div class="qr-section"><div class="qr-label">Buổi học</div>
         ${lessons.map((l) => l.comingSoon
-          ? `<div class="qr-item is-disabled"><span class="qr-num">${l.id}</span><span class="qr-main"><b>Buổi ${l.id}</b><small>Sắp cập nhật</small></span></div>`
+          ? `<div class="qr-item is-disabled"><span class="qr-num">${l.id}</span><span class="qr-main"><b>Buổi ${l.id}</b><small>${soonLabel(l)}</small></span></div>`
           : `<a class="qr-item" href="#/buoi/${l.id}"><span class="qr-num">${l.id}</span><span class="qr-main"><b>${esc(l.title)}</b><small>${esc(l.titleVi)} · ${esc(l.topic)}</small></span></a>`).join("")}
       </div>
       <div class="qr-section"><div class="qr-label">Loại từ</div><div class="qr-chips">
@@ -456,7 +458,7 @@
   $("#navLessons").innerHTML = `<details class="dropdown">
       <summary>Buổi học <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
       <div class="menu">${lessons.map((l) => l.comingSoon
-        ? `<span class="menu-item is-disabled"><b>Buổi ${l.id}</b><small>Sắp cập nhật</small></span>`
+        ? `<span class="menu-item is-disabled"><b>Buổi ${l.id}</b><small>${soonLabel(l)}</small></span>`
         : `<a class="menu-item" href="#/buoi/${l.id}" data-nav="lesson-${l.id}"><b>Buổi ${l.id}</b><small>${esc(l.title)}</small></a>`).join("")}
       </div></details>`;
   document.addEventListener("click", (e) => {
@@ -573,8 +575,8 @@
   function lessonCard(l) {
     if (l.comingSoon) {
       return `<div class="lesson-card is-soon">
-        <div class="lc-top"><span class="lc-num">Buổi ${l.id}</span><span class="tag tag-soon">${ICON.clock} Sắp cập nhật</span></div>
-        <h3>Đang chuẩn bị tài liệu</h3>
+        <div class="lc-top"><span class="lc-num">Buổi ${l.id}</span><span class="tag tag-soon">${l.noRecap ? "" : ICON.clock + " "}${soonLabel(l)}</span></div>
+        <h3>${l.noRecap ? "No recap" : "Đang chuẩn bị tài liệu"}</h3>
         <p class="muted">${esc(l.summary || "Nội dung sẽ được bổ sung sau.")}</p>
       </div>`;
     }
@@ -800,7 +802,7 @@
         <div class="empty empty-lg">
           <div class="empty-icon">${ICON.clock}</div>
           <p class="eyebrow">Buổi ${l.id}</p>
-          <h1>Nội dung đang được cập nhật</h1>
+          <h1>${l.noRecap ? "No recap" : "Nội dung đang được cập nhật"}</h1>
           <p class="muted">${esc(l.summary || "Tài liệu buổi này sẽ được bổ sung sau.")}</p>
           <a class="btn" href="#/tu-dien">Tra từ các buổi khác</a>
         </div>${pager}`;
@@ -1029,6 +1031,8 @@
       ? `<div class="lsec-tools"><button type="button" class="btn btn-ghost btn-sm" data-vi-toggle aria-pressed="true">Ẩn bản dịch</button></div>` : ""}</div>
       ${x.intro ? `<p class="muted sec-intro">${rich(x.intro)}</p>` : ""}`;
     let body = "";
+    const pre = `${(x.keys || []).length ? `<div class="keys">${x.keys.map((k) => `<div class="key"><b>${esc(k.k)}</b><span>${rich(k.t)}</span></div>`).join("")}</div>` : ""}
+      ${x.passage ? `<div class="passage">${x.passageTitle ? `<h3>${esc(x.passageTitle)}</h3>` : ""}<p>${vocabText(x.passage, lw)} ${speakBtn(x.passage, "Nghe đoạn văn")}</p></div>` : ""}`;
     if (x.type === "phrases") {
       body = `<div class="phrase-grid">${x.items.map((it, i) => `
         <article class="phrase-card">
@@ -1099,7 +1103,8 @@
       body = `<ol class="story">${x.lines.map((ln) => `
         <li><p class="ex-en">${vocabText(ln.en, lw)} ${speakBtn(ln.en, "Nghe câu")}</p>${ln.vi ? `<p class="dl-vi">${esc(ln.vi)}</p>` : ""}</li>`).join("")}</ol>`;
     }
-    return `<section class="lsec" id="sec-${esc(x.id)}">${head}${body}</section>`;
+    const after = x.note ? `<div class="pbank-note sec-note">${x.note.split("\n").map((ln) => `<p>${rich(ln)}</p>`).join("")}</div>` : "";
+    return `<section class="lsec" id="sec-${esc(x.id)}">${head}${pre}${body}${after}</section>`;
   }
 
   // đọc lần lượt từng câu của hội thoại
@@ -1212,7 +1217,7 @@
     }
     if (ex.type === "tf") {
       return `<div class="hw-item hw-row" data-i="${i}">${n}<span class="hw-q-inline">${qBlank(it.q)}</span>
-        <span class="hw-tf"><button type="button" data-tf="T">True</button><button type="button" data-tf="F">False</button></span>${fb}</div>`;
+        <span class="hw-tf">${ex.labels ? ex.labels.map((b) => `<button type="button" data-tf="${esc(b)}">${esc(b)}</button>`).join("") : `<button type="button" data-tf="T">True</button><button type="button" data-tf="F">False</button>`}</span>${fb}</div>`;
     }
     if (ex.type === "error") {
       return `<div class="hw-item" data-i="${i}"><p class="hw-q">${n}${rich(it.q)}</p>
@@ -1258,13 +1263,14 @@
     return `<section class="lsec" id="sec-homework">
       <div class="lsec-head"><h2>Bài tập</h2><div class="hw-total">Điểm: <b id="hwTotal">0</b>/${total}</div></div>
       <p class="muted">Làm bài rồi bấm <b>Kiểm tra</b> để xem câu nào đúng/sai. Bài làm được lưu tạm trên trình duyệt của bạn.</p>
-      <nav class="hw-index">${list.map((ex, ei) => `<button type="button" class="hw-chip" data-jump="hw-${ei}"><b>${ei + 1}</b> ${esc(HW_TYPES[ex.type] || ex.type)}<span class="hw-chip-score" data-score-of="${ei}"></span></button>`).join("")}</nav>
+      <nav class="hw-index">${list.map((ex, ei) => `<button type="button" class="hw-chip" data-jump="hw-${ei}"><b>${ei + 1}</b> ${esc(ex.label || HW_TYPES[ex.type] || ex.type)}<span class="hw-chip-score" data-score-of="${ei}"></span></button>`).join("")}</nav>
       ${list.map((ex, ei) => `<article class="hw" id="hw-${ei}" data-ex="${ei}">
         <header class="hw-head">
           <span class="hw-n">Bài ${ei + 1}</span>
           <div class="hw-title"><h3>${esc(ex.title)}</h3>${ex.intro ? `<p class="muted small">${rich(ex.intro)}</p>` : ""}</div>
           <span class="hw-score" hidden></span>
         </header>
+        ${ex.passage ? `<div class="passage"><p>${rich(ex.passage)} ${speakBtn(plain(ex.passage), "Nghe đoạn văn")}</p></div>` : ""}
         ${(ex.bank || []).length ? `<div class="hw-bank"><span class="muted small">Từ gợi ý:</span>${ex.bank.map((b) => `<span class="hw-bank-w" data-bank="${esc(normAns(b))}">${esc(b)}</span>`).join("")}</div>` : ""}
         ${hwBodyHTML(ex, ei)}
         ${hwGraded(ex) ? `<footer class="hw-actions">
@@ -1297,18 +1303,19 @@
     };
     const answerText = (ex, it) =>
       ex.type === "mcq" ? `${LETTERS[it.a]}. ${it.options[it.a]}` :
-      ex.type === "tf" ? (it.a ? "True" : "False") :
+      ex.type === "tf" ? (ex.labels ? it.a : it.a ? "True" : "False") :
       ex.type === "match" ? `${it.a}. ${plain((ex.options.find((o) => o.k === it.a) || {}).t || "")}` :
       ex.type === "error" ? (it.show || it.a[0]) : it.a[0];
     const judge = (ex, it, v) => {
       if (v === "" || v == null) return false;
       if (ex.type === "match") return v === it.a;
       if (ex.type === "mcq") return +v === it.a;
-      if (ex.type === "tf") return v === (it.a ? "T" : "F");
+      if (ex.type === "tf") return v === tfKey(ex, it);
       const n = normAns(v);
       return it.a.some((a) => normAns(a) === n) || (!!it.fixed && normAns(it.fixed) === n);
     };
-    const correctVal = (ex, it) => ex.type === "tf" ? (it.a ? "T" : "F") : ex.type === "mcq" ? String(it.a) : ex.type === "match" ? it.a : it.a[0];
+    const tfKey = (ex, it) => ex.labels ? it.a : it.a ? "T" : "F";
+    const correctVal = (ex, it) => ex.type === "tf" ? tfKey(ex, it) : ex.type === "mcq" ? String(it.a) : ex.type === "match" ? it.a : it.a[0];
 
     const setFb = (fb, cls, html) => { fb.hidden = false; fb.className = "hw-fb " + cls; fb.innerHTML = html; };
     const updateTotal = () => {

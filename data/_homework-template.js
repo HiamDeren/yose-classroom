@@ -9,7 +9,9 @@
      gap     – điền từ (dùng ___ cho chỗ trống); có thể thêm bank (khung từ gợi ý), hint (từ gốc), who (người nói)
      error   – sửa lỗi sai: học viên gõ phần đã sửa; fixed = cả câu đúng (gõ cả câu cũng được tính đúng)
      order   – sắp xếp câu (a = chuỗi chữ cái đúng thứ tự, vd "BEDFAC")
-     tf      – đúng / sai (a: true hoặc false)
+     tf      – đúng / sai (a: true hoặc false); thêm labels: ["TRUE","FALSE","NOT GIVEN"]
+               (hoặc nhãn phân loại bất kỳ) thì a là một nhãn, vd a: "NOT GIVEN";
+               label: "T / F / NG" đổi tên hiện ở thanh mục lục; passage: "…" hiện đoạn văn trên bài
      writing – bài viết tự do: đếm số từ, đếm từ vựng của buổi đã dùng, có bài mẫu và tiêu chí tự chấm
    a: luôn là danh sách các đáp án được chấp nhận (với gap / error). Không phân biệt hoa thường. */
 

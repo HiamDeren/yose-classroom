@@ -711,6 +711,15 @@ strong .vocab-link:hover { text-decoration-style: solid; }
 .pb-note strong { color: var(--accent); }
 .pbank-note { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--brand-soft); font-size: 14px; color: var(--ink); }
 .pbank-note strong { color: var(--brand-ink); }
+.sec-note { margin-top: 12px; }
+/* Bảng khóa đáp án (TRUE / FALSE / NOT GIVEN) và đoạn văn đọc hiểu */
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin: 4px 0 12px; }
+.key { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.key b { font-size: 13px; letter-spacing: .04em; color: var(--brand-ink); }
+.key span { font-size: 14px; color: var(--ink-2); }
+.passage { margin: 0 0 12px; padding: 12px 14px; border-left: 3px solid var(--brand); border-radius: 0 10px 10px 0; background: var(--surface-2); }
+.passage h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.passage p { margin: 0; line-height: 1.65; }
 
 /* khung câu theo nhóm */
 .frames-tabs { margin-bottom: 14px; }
@@ -803,7 +812,7 @@ strong .vocab-link:hover { text-decoration-style: solid; }
 .hw-opt.is-answer span { border-color: #23885f; background: color-mix(in srgb, #23885f 14%, transparent); font-weight: 600; }
 
 .hw-q-inline { font-size: 15.5px; }
-.hw-tf { display: inline-flex; gap: 6px; }
+.hw-tf { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .hw-tf button { height: 34px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--surface); font-weight: 600; font-size: 14px; color: var(--ink-2); }
 .hw-tf button.on { border-color: var(--brand); background: var(--brand-soft); color: var(--ink); }
 .hw-item.ok .hw-tf button.on { border-color: #23885f; background: color-mix(in srgb, #23885f 14%, transparent); }

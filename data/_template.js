@@ -71,6 +71,8 @@ YOSE.addLesson({
      warmup: { q: "Câu hỏi khởi động?", a: "Câu trả lời → …", vi: "Dịch" },
 
      sections: [   // các mục riêng, hiện sau phần Từ vựng
+       // Mọi mục đều thêm được: keys: [{ k: "TRUE", t: "…" }] (ô giải thích khóa đáp án),
+       //   passage: "đoạn văn đọc hiểu", passageTitle: "…", note: "ghi chú cuối mục (xuống dòng bằng \n)"
        { id: "reasons", nav: "Tên trên thanh mục", type: "phrases", title: "…", intro: "…",
          items: [{ title: "…", vi: "…", phrases: ["cụm 1", "**cụm nhấn mạnh**"], ex: "…", exVi: "…" }] },
        { id: "places", type: "table", title: "…", cols: ["A", "B", "C"],
