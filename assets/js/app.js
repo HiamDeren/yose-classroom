@@ -512,8 +512,17 @@
     $$("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === key));
     $(".nav-lessons summary")?.classList.toggle("active", key.startsWith("lesson"));
   }
+  // gửi lượt xem trang cho Vercel Web Analytics (bỏ qua tham số ?w=, ?q=… để không đếm trùng)
+  let lastView = "";
+  function trackView(path) {
+    if (path === lastView || typeof window.va !== "function") return;
+    lastView = path;
+    const route = /^\/buoi\/\d+$/.test(path) ? "/buoi/[id]" : path;
+    try { window.va("pageview", { route, path }); } catch (e) {}
+  }
   function route() {
     const { path, params } = parseHash();
+    trackView(path);
     closePalette();
     document.body.classList.remove("sheet-open");
     let m;

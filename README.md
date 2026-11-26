@@ -68,3 +68,12 @@ python3 -m http.server 8000
 1. Vào [vercel.com/new](https://vercel.com/new) → **Import** repo này từ GitHub.
 2. Framework Preset: **Other**. Không cần Build Command hay Output Directory.
 3. Bấm **Deploy**. Mỗi lần push lên nhánh `main`, Vercel sẽ tự cập nhật.
+
+## Theo dõi lượt truy cập (Vercel Web Analytics)
+
+Web đã gắn sẵn Vercel Web Analytics (script `/_vercel/insights/script.js` trong `index.html`). Vì web dùng địa chỉ dạng `#/buoi/11`, lượt xem được gửi trong `assets/js/app.js` (hàm `trackView`) mỗi khi đổi trang:
+
+- `/` – trang chủ, `/tu-dien` – từ điển, `/buoi/1`, `/buoi/2`… – từng buổi (gộp chung ở route `/buoi/[id]`).
+- Tham số phụ như `?w=`, `?q=` không tính thành lượt xem mới.
+
+Xem số liệu tại Vercel → project **yose-classroom** → tab **Analytics** (tab *Pages* xem từng buổi, *Routes* xem tổng các buổi). Chạy thử trên máy sẽ không gửi số liệu.
