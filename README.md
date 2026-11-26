@@ -33,7 +33,8 @@ data/
   lesson-09.js   ← Technology
   lesson-10.js   ← No recap (không có tài liệu)
   lesson-11.js   ← Job – Work – Career P1
-  homework-01…11.js ← bài tập từng buổi
+  lesson-12.js   ← Job – Work – Career P2
+  homework-01…12.js ← bài tập từng buổi
   _homework-template.js ← mẫu để tạo bài tập
   _template.js   ← mẫu để tạo buổi mới
 ```
